@@ -8,7 +8,7 @@ from datetime import datetime
 st.set_page_config(page_title="AKÜDAK Mezunları Portalı", layout="wide")
 
 # 2. BAĞLANTI AYARLARI (Orijinal Dosya Yöntemi)
-JSON_KEY_DOSYASI = 'refined-helix-495108-d4-5b0da9922a2a.json'
+JSON_KEY_DOSYASI = 'credentials.json'
 
 # Önbellekleme: Dönen imleci ve uygulamanın kilitlenmesini engeller.
 @st.cache_resource
