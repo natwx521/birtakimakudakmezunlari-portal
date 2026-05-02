@@ -1,64 +1,59 @@
 import streamlit as st
-import pandas as pd
 import gspread
-from google.oauth2 import service_account
-from datetime import datetime
+from google.oauth2.service_account import Credentials
+import datetime
 
-# 1. SAYFA AYARLARI
-st.set_page_config(page_title="AKÜDAK Mezunları Portalı", layout="wide")
+# --- 1. GÜVENLİK: ANAHTARI DİREKT KODA GÖMÜYORUZ ---
+# Secrets paneliyle uğraşmamak için en sağlam yol budur.
+GOOGLE_JSON = {
+    "type": "service_account",
+    "project_id": "refined-helix-495108-d4",
+    "private_key_id": "617a967a29b79d716b5d77a8419189d93dae2f3b",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQD6Ec9NaceIFmXQ\nra0E23cNFbh0dQUbgrI/yxGpghI3qy4wKtFBZ3E7ZhpahLCWJduGclOThSfh0NZK\nyhE2GmqERFpCcDLKv+w6QjBQZBeib4xrwAZ9jQkzwSC0THT7t+QXdlV0MQ7yV3/U\nX0Yl1YEHh7W+bXaNb8B+3+kzMytxTTUu8w9YwnOLc1qRyGP+YsE3nlARtSEACIZJ\n2ar6j9p3sAlMss/lFVFmii0bKbEZZgw/amgYWpVwMT0ASITH6xOWLVgbNt4OZMhf\nQn3UjbvH6khEzd/JbTZA7tXJK/jnPZcRCyHIX6tLE0hLJYCVfm0ctQH8Ghn35Bms\nWK7j6Vm5AgMBAAECggEAEphI7zN2rhimRQRpGXOdUGiFUQmTkeZfzU0TGOTuaFvP\nAS9p5IBl49oVixYTUHLrtj1hmBZebxT5nlGUwo5nzcKMaKTRrhBj5zgdQhkTRdWg\nHjIG+YaHgOTzQtztlPspV5JJy+xK9XvKqlbUT0NnRxFREyIuHtnIuVZ6j39WU2QZ\n95rVN+q353eJEmJ1XvC3za6SE9uqFMLa3jqwdXDkHqKQSKbRH2y4WJMF6/APOBIx\njlJIeZJu3ngUS7a59Tacj0TjXLWRbxgPtJ7M1rAb3mAmzOZA7rCKnQZt7FZ44cFm\nHFBkkwbmuGVMBghS5gBhq8jp95m8LyYo5qkZhIKWNQKBgQD9Pso2fxsZ2XB2ucg7\nOI+ssz+xJeEdG2eTQM+APA8LfQmJFNwk5gDBoVXiDEU0TUgZ4Im1kJaXaNCg8W98\nNhBPmdlpztI7n5FZQ1fU0ylUJSUI7Sgy0pQIVIYNWo0L12MhoWD/pmnnQQy9E4Gh\nLjbhXCdw4yCTJWRtavK5nPyoJQKBgQD8yi0wskIeO58Gd2FQ+ln+tWNmklPoIk3j\n1gqknF2Oe2H9nPGQGcLz2p4oamP8nPlxlqKrDVvFxcSdsoWu1e6U+d/vG4d39zYm\nzYNHrZFKSNksiInG6vpCKGXy7ekaM3EjxxO9skCwcT/Y1Cc0mxmz9NgEZ2F4zWlO\nDKFSm2B9BQKBgFSu2XmtuUdEkbnx2AYNnOW4LvUy4HsWPeVcx8Zuzu0di8G+Kvtf\ nuiMFqy1iwwWBTjnw/rurNOA+mX0oHwqfHYcwwCYElgKAEl+SCF3PmsNbhG3euBF+\nnyfF8+mlPQMXrDuDtmbmpAVDmFnlmvRl+s4TPdEe8jaiS1nXaIEvAMHNAoGBANB2\nda/LwOSnrCur9Q/PdLmsoc0rbJBpAayajWpUHH7sVtHLRBXeeLuaFIUlv1DJrpcy\nbvD6ciz1O4AEgWO9viMSsM3A+QVAU2LKZbGNe9wzmQy1iFEG49v87p3X/jwCIhIs\nEKaFwfz/V3Sa973VDewuRJnVGzeAxY98sOirg3V1AoGBAPu1EjQHe0ZQWSmRqupN\nMpqg0YsIoge/kO/fw01zPkq0Ai8aCXbV0nyxmh91qvKPlUSgiuHsvS8Q2EvEDv4N\nsf+3/PlUTcq3iY0puQff2CkA9nZKLRLjfs3netDtiGZxqAerrLUahXfNkrveaKWM\ntfkBU2DUqA27j2xYGSe2N0cW\n-----END PRIVATE KEY-----\n",
+    "client_email": "mezun-takip@refined-helix-495108-d4.iam.gserviceaccount.com",
+    "client_id": "104958170885135111051",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mezun-takip%40refined-helix-495108-d4.iam.gserviceaccount.com"
+}
 
-# 2. BAĞLANTI FONKSİYONU (SECRETS KULLANARAK)
-def baglan(worksheet_index=0):
-    try:
-        # Streamlit Secrets'tan bilgileri çekiyoruz
-        creds_dict = st.secrets["google_credentials"]
-        creds = service_account.Credentials.from_service_account_info(
-            creds_dict,
-            scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-        )
-        client = gspread.authorize(creds)
-        # Tablo adını da Secrets'tan alabiliriz
-        return client.open(st.secrets["SPREADSHEET_ADI"]).get_worksheet(worksheet_index)
-    except Exception as e:
-        st.error(f"Bağlantı Hatası: {e}")
-        return None
+# --- 2. BAĞLANTI FONKSİYONU ---
+def google_baglan():
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds = Credentials.from_service_account_info(GOOGLE_JSON, scopes=scope)
+    client = gspread.authorize(creds)
+    # Drive'daki dosya adın resim_18.png'ye göre "faaliyet_kayitlari"
+    return client.open("faaliyet_kayitlari").sheet1
 
-# 3. VERİLERİ ÇEKME
-sheet = baglan(0)
-if sheet:
-    try:
-        df = pd.DataFrame(sheet.get_all_records())
-    except:
-        df = pd.DataFrame()
-else:
-    df = pd.DataFrame()
+# --- 3. ARAYÜZ (STREAMLIT) ---
+st.set_page_config(page_title="AKÜDAK Mezun Portalı", page_icon="🧗‍♂️")
 
-# 4. YAN MENÜ
-st.sidebar.title("🧭 AKÜDAK Menü")
-sekme = st.sidebar.radio("Bölüm Seçin:", ["Ana Sayfa & Kayıt", "👤 Tırmanıcı Analizi", "🛠 Malzeme Karnesi"])
+st.title("🧗‍♂️ AKÜDAK Mezun Portalı")
+st.markdown("Mezun üyelerimiz için faaliyet kayıt formu. Lütfen bilgileri eksiksiz doldurun.")
 
-# --- ANA SAYFA & KAYIT ---
-if sekme == "Ana Sayfa & Kayıt":
-    st.title("🚀 AKÜDAK MEZUNLARI VERİ GİRİŞİ")
+with st.form("mezun_formu"):
+    st.subheader("Üye Bilgileri")
+    ad_soyad = st.text_input("Ad Soyad")
+    mezuniyet_yili = st.number_input("Mezuniyet Yılı", min_value=1990, max_value=2030, value=2024)
+    iletisim = st.text_input("E-posta veya Telefon")
     
-    with st.form("kayit_formu", clear_on_submit=True):
-        col1, col2 = st.columns(2)
-        with col1:
-            kisi = st.selectbox("Tırmanıcı", ["Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL", "Tanju DEMİREL", "Emre DOĞAN", "Misafir"])
-            tarih = st.date_input("Tarih", datetime.now())
-            rota = st.text_input("Rota Adı")
-        with col2:
-            uzunluk = st.number_input("Rota Uzunluğu (m)", min_value=0)
-            malzeme = st.selectbox("Malzeme", ["Petzl Volta 9.0mm", "Ekspres Set", "Kemer"])
-            dusus = st.selectbox("Düşüş Sayısı", [0, 1, 2, 3])
+    st.subheader("Faaliyet Bilgileri")
+    faaliyet_adi = st.text_input("Faaliyet Adı / Dağ İsmi")
+    tarih = st.date_input("Faaliyet Tarihi", datetime.date.today())
+    notlar = st.text_area("Faaliyet Notları ve Rota Bilgisi")
+    
+    submit_button = st.form_submit_button("Kaydı Gönder")
 
-        submit = st.form_submit_button("Kaydet")
-        
-        if submit and sheet:
-            try:
-                yeni_satir = [str(tarih), rota, kisi, uzunluk, uzunluk*2, malzeme, dusus]
-                sheet.append_row(yeni_satir)
-                st.success("Veri başarıyla kaydedildi!")
-                st.balloons()
-            except Exception as e:
-                st.error(f"Kayıt hatası: {e}")
+if submit_button:
+    if ad_soyad and faaliyet_adi:
+        try:
+            sheet = google_baglan()
+            yeni_satir = [str(tarih), ad_soyad, str(mezuniyet_yili), iletisim, faaliyet_adi, notlar]
+            sheet.append_row(yeni_satir)
+            st.success(f"Tebrikler {ad_soyad}! Faaliyet başarıyla kaydedildi. 🏔️")
+            st.balloons()
+        except Exception as e:
+            st.error(f"Bağlantı Hatası: {e}")
+    else:
+        st.warning("Lütfen Ad Soyad ve Faaliyet Adı alanlarını boş bırakmayın.")
