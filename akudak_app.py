@@ -33,7 +33,7 @@ sekme = st.sidebar.radio("Gitmek İstediğiniz Bölüm:", ["Ana Sayfa & Kayıt",
 
 # SABİT LİSTELER
 kullanicilar = ["Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL", "Tanju DEMİREL", "Yavuz S. ÇAMUR","Erhan YALÇIN", "Emre DOĞAN", "Misafir" ]
-stiller = ["Lider-Spor","Lider-Geleneksel" "Top-Rope"]
+stiller = ["Lider-Spor","Lider-Geleneksel", "Top-Rope"]
 zorluk_dereceleri = ["IV", "V-", "V", "V+", "VI-", "VI", "VI+", "VII-", "VII", "VII+", "VIII-", "VIII", "VIII+", "IX-", "IX"]
 malzemeler = ["Petzl Volta Guide 9.0mm (80m)", "Corax LT Kemer M", "Corax LT Kemer XL", "Petzl Reverso Kırm.", "Petzl Reverso Yeşil.", "Ekspres Set"]
 
