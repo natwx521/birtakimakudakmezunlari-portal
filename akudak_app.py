@@ -7,7 +7,7 @@ from datetime import datetime
 # 1. SAYFA VE TEMA AYARLARI
 st.set_page_config(page_title="AKÜDAK Mezunları Portalı", layout="wide")
 
-# 2. BAĞLANTI AYARLARI (Gömülü JSON Sistemi)
+# 2. BAĞLANTI AYARLARI (PEM Hata Korumalı Gömülü JSON)
 GOOGLE_JSON = {
     "type": "service_account",
     "project_id": "refined-helix-495108-d4",
@@ -20,6 +20,10 @@ GOOGLE_JSON = {
     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/mezun-takip%40refined-helix-495108-d4.iam.gserviceaccount.com"
 }
+
+# HATA ÖNLEYİCİ: Private Key içindeki kaçış karakterlerini temizle
+GOOGLE_JSON["private_key"] = GOOGLE_JSON["private_key"].replace("\\n", "\n")
+
 SPREADSHEET_ADI = 'faaliyet_kayitlari'
 
 def baglan(worksheet_index=0):
@@ -28,13 +32,13 @@ def baglan(worksheet_index=0):
     client = gspread.authorize(creds)
     return client.open(SPREADSHEET_ADI).get_worksheet(worksheet_index)
 
-# 3. VERİLERİ ÇEKME VE BAĞLANTI (KRİTİK DÜZELTME)
-sheet = baglan(0) # sheet değişkeni her zaman tanımlı olsun diye try dışına aldık.
-
+# 3. VERİLERİ ÇEKME VE BAĞLANTI (GÜVENLİ BAŞLATMA)
 try:
+    sheet = baglan(0)
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
-except Exception:
+except Exception as e:
+    st.error(f"Bağlantı Hatası: {e}")
     df = pd.DataFrame()
 
 # 4. YAN MENÜ (SIDEBAR)
@@ -52,7 +56,6 @@ malzemeler = ["Petzl Volta Guide 9.0mm (80m)", "Corax LT Kemer M", "Corax LT Kem
 if sekme == "Ana Sayfa & Kayıt":
     st.title("🚀 AKÜDAK MEZUNLARI VERİ GİRİŞİ")
     
-    # 🪢 ANA İP DURUM PANELİ
     if not df.empty and "Malzeme" in df.columns:
         ip_df = df[df['Malzeme'].str.contains("Volta", na=False)]
         if not ip_df.empty:
@@ -72,7 +75,6 @@ if sekme == "Ana Sayfa & Kayıt":
     
     st.divider()
     
-    # 📝 KAYIT FORMU
     with st.form("yeni_kayit_formu", clear_on_submit=True):
         st.subheader("📝 Yeni Faaliyet Girişi")
         col_a, col_b = st.columns(2)
@@ -96,39 +98,30 @@ if sekme == "Ana Sayfa & Kayıt":
         if submit:
             try:
                 toplam_ip_kullanimi = uzunluk * 2
-                # Google Sheets'e gidecek veri listesi
                 yeni_satir = [str(tarih), sektor, rota, stil, zorluk, kisi, uzunluk, toplam_ip_kullanimi, malzeme, dusus]
                 sheet.append_row(yeni_satir)
                 st.success(f"Başarılı! {kisi} için {toplam_ip_kullanimi}m ip kullanımı işlendi.")
                 st.balloons()
+            except NameError:
+                st.error("Sheet bağlantısı kurulamadı. Lütfen interneti ve Google Sheet adını kontrol edin.")
             except Exception as e:
-                st.error(f"Kayıt sırasında hata oluştu: {e}")
-
-    # 📘 GENİŞLETİLMİŞ TEKNİK REHBER
-    with st.expander("📘 Malzeme Kullanım ve Güvenlik Kılavuzu"):
-        st.error("### ⚠️ Sert Düşüş Nedir?")
-        st.write("Lider tırmanışta son emniyet noktasının üzerine çıkılıp boşlukta uçulan durumdur.")
-        st.info("### 🕒 İp Emeklilik Kriterleri")
-        st.markdown("* Toplam 5000m tırmanış veya 5 sert düşüş sonrası ip emekliye ayrılmalıdır.")
+                st.error(f"Kayıt Hatası: {e}")
 
 elif sekme == "👤 Tırmanıcı Analizi":
     st.title("👤 Tırmanıcı Performans Verileri")
     secilen_kisi = st.selectbox("İsim Seçiniz:", kullanicilar)
     
     if not df.empty:
-        # Sütun isminin Google Sheets'tekiyle (Yukleyen) aynı olduğundan emin olun
         k_df = df[df['Yukleyen'] == secilen_kisi]
         if not k_df.empty:
             m1, m2, m3 = st.columns(3)
             m1.metric("Toplam Lider", f"{k_df[k_df['Stil'] == 'Lider']['Rota_Uz'].sum()} m")
             m2.metric("Toplam Top-Rope", f"{k_df[k_df['Stil'] == 'Top-Rope']['Rota_Uz'].sum()} m")
-            m3.metric("Son Zorluk Derecesi", str(k_df['Zorluk'].iloc[-1]))
+            m3.metric("Son Zorluk", str(k_df['Zorluk'].iloc[-1]))
             st.dataframe(k_df, use_container_width=True)
-        else:
-            st.warning("Bu kullanıcıya ait veri bulunamadı.")
 
 elif sekme == "🛠 Malzeme Karnesi":
-    st.title("🛠 Malzeme Sağlık ve Metraj Takibi")
+    st.title("🛠 Malzeme Sağlık Takibi")
     if not df.empty:
         ozet = df.groupby('Malzeme').agg({'Toplam_Ip': 'sum', 'Dusus': 'sum'}).rename(columns={'Toplam_Ip': 'Toplam Metraj (m)', 'Dusus': 'Toplam Sert Düşüş'})
         st.table(ozet)
