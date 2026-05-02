@@ -32,8 +32,8 @@ st.sidebar.title("🧭 AKÜDAK Menü")
 sekme = st.sidebar.radio("Gitmek İstediğiniz Bölüm:", ["Ana Sayfa & Kayıt", "👤 Tırmanıcı Analizi", "🛠 Malzeme Karnesi"])
 
 # SABİT LİSTELER
-kullanicilar = ["Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL", "Tanju DEMİREL", "Yavuz S. ÇAMUR", "Emre DOĞAN", "Erhan YALÇIN"]
-stiller = ["Lider", "Top-Rope"]
+kullanicilar = ["Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL", "Tanju DEMİREL", "Yavuz S. ÇAMUR","Erhan YALÇIN", "Emre DOĞAN", "Misafir" ]
+stiller = ["Lider-Spor","Lider-Geleneksel" "Top-Rope"]
 zorluk_dereceleri = ["IV", "V-", "V", "V+", "VI-", "VI", "VI+", "VII-", "VII", "VII+", "VIII-", "VIII", "VIII+", "IX-", "IX"]
 malzemeler = ["Petzl Volta Guide 9.0mm (80m)", "Corax LT Kemer M", "Corax LT Kemer XL", "Petzl Reverso Kırm.", "Petzl Reverso Yeşil.", "Ekspres Set"]
 
@@ -43,7 +43,7 @@ if sekme == "Ana Sayfa & Kayıt":
     st.title("🚀 BİR TAKIM AKÜDAK MEZUNLARI VERİ GİRİŞİ")
     
     # 🪢 ANA İP DURUM PANELİ
-    if not df.empty and "Petzl Volta" in df['Malzeme'].values:
+    if not df.empty and "Petzl Volta - ilk ipimiz" in df['Malzeme'].values:
         ip_df = df[df['Malzeme'].str.contains("Volta")]
         toplam_metraj = ip_df['Toplam_Ip'].sum()
         toplam_dusus = ip_df['Dusus'].sum()
