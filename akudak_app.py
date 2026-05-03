@@ -46,7 +46,7 @@ def splash_screen():
         img = ""
 
     splash = st.empty()
-    text = "_     AKÜDAK, it's not a pipe!!!     _"
+    text = "_     It's not a pipe!!!  It is AKÜDAK....      _"
     typed = ""
 
     for i in range(len(text)):
