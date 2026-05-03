@@ -16,22 +16,16 @@ st.set_page_config(
 # ---------------- ANDROID SCROLL / REFRESH FIX ----------------
 st.markdown("""
 <style>
-html, body {
-    overscroll-behavior: none !important;
-    -webkit-overflow-scrolling: touch;
+/* Selectbox dropdown yüksekliğini artır */
+div[data-baseweb="select"] div {
+    max-height: 350px !important;
 }
 
-[data-testid="stAppViewContainer"] {
-    overscroll-behavior: none !important;
-    touch-action: pan-y !important;
-}
-
-input, textarea, select {
-    scroll-margin: 100px;
-}
-
-body {
-    overscroll-behavior-y: contain;
+/* Android’de scroll kayması düzeltme */
+div[role="listbox"] {
+    max-height: 350px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
 }
 </style>
 """, unsafe_allow_html=True)
