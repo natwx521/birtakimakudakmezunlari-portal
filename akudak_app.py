@@ -7,6 +7,7 @@ import copy
 
 # ---------------- SAYFA AYAR ----------------
 st.set_page_config(page_title="AKÜDAK Mezunları Portalı", layout="wide")
+set_background("resim01.png")
 def set_background(image_file):
     import base64
 
