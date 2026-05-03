@@ -22,7 +22,7 @@ def splash_screen():
         img = ""
 
     splash = st.empty()
-    text = "AKÜDAK, it's not a pipe!"
+    text = "     AKÜDAK, it's not a pipe!     "
     typed = ""
 
     for i in range(len(text)):
@@ -41,7 +41,7 @@ def splash_screen():
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
+            color: red;
         }}
 
         .text {{
@@ -62,9 +62,9 @@ def splash_screen():
         </div>
         """, unsafe_allow_html=True)
 
-        time.sleep(0.08)
+        time.sleep(0.18)
 
-    time.sleep(0.5)
+    time.sleep(1)
     splash.empty()
 
 
@@ -133,11 +133,11 @@ except Exception as e:
 
 
 # ---------------- SIDEBAR ----------------
-st.sidebar.title("🧭 AKÜDAK Menü")
+st.sidebar.title("🏔️ AKÜDAK Menü")
 
 page = st.sidebar.radio("Seçim", [
-    "🚀 Ana Sayfa",
-    "👤 Tırmanıcı Analizi",
+    "🏔️ Ana Sayfa",
+    "🧗 Tırmanıcı Analizi",
     "🛠 Malzeme Karnesi"
 ])
 
@@ -146,7 +146,7 @@ page = st.sidebar.radio("Seçim", [
 kullanicilar = [
     "Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL",
     "Tanju DEMİREL", "Yavuz S. ÇAMUR",
-    "Emre DOĞAN", "Erhan YALÇIN"
+    "Emre DOĞAN", "Erhan YALÇIN", "Misafir"
 ]
 
 stiller = ["Lider", "Top-Rope"]
@@ -169,7 +169,7 @@ malzemeler = [
 
 # ---------------- PAGE 1 ----------------
 def ana_sayfa():
-    st.title("🚀 AKÜDAK VERİ GİRİŞİ")
+    st.title("🏔️ AKÜDAK VERİ GİRİŞİ")
 
     with st.form("form", clear_on_submit=True):
         col1, col2 = st.columns(2)
@@ -211,7 +211,7 @@ def ana_sayfa():
 
 # ---------------- PAGE 2 ----------------
 def analiz():
-    st.title("👤 Tırmanıcı Analizi")
+    st.title("🧗 Tırmanıcı Analizi")
 
     secilen = st.selectbox("Kişi", kullanicilar)
 
@@ -242,10 +242,10 @@ def malzeme():
 
 
 # ---------------- ROUTER ----------------
-if page == "🚀 Ana Sayfa":
+if page == "🏔️ Ana Sayfa":
     ana_sayfa()
 
-elif page == "👤 Tırmanıcı Analizi":
+elif page == "🧗 Tırmanıcı Analizi":
     analiz()
 
 elif page == "🛠 Malzeme Karnesi":
