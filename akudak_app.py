@@ -4,13 +4,16 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import copy
+import base64
 
-# ---------------- SAYFA AYAR ----------------
-st.set_page_config(page_title="AKÜDAK Mezunları Portalı", layout="wide")
-set_background("resim01.png")
+# ---------------- PAGE SETUP ----------------
+st.set_page_config(
+    page_title="AKÜDAK Mezunları Portalı",
+    layout="wide"
+)
+
+# ---------------- BACKGROUND ----------------
 def set_background(image_file):
-    import base64
-
     with open(image_file, "rb") as f:
         encoded = base64.b64encode(f.read()).decode()
 
@@ -24,17 +27,20 @@ def set_background(image_file):
         background-attachment: fixed;
     }}
 
-    /* form ve içerik okunabilir olsun diye */
     .block-container {{
-        background-color: rgba(255, 255, 255, 0.85);
+        background-color: rgba(255,255,255,0.88);
         padding: 2rem;
-        border-radius: 10px;
+        border-radius: 12px;
     }}
     </style>
     """
-
     st.markdown(css, unsafe_allow_html=True)
-# ---------------- GOOGLE BAĞLANTI ----------------
+
+# 👉 background dosyan varsa aç
+set_background("resim01.png")
+
+
+# ---------------- GOOGLE CONNECTION ----------------
 @st.cache_resource
 def baglan():
     scope = [
@@ -42,10 +48,8 @@ def baglan():
         "https://www.googleapis.com/auth/drive"
     ]
 
-    # secrets kopyası (asla direkt değiştirme!)
     creds_dict = copy.deepcopy(dict(st.secrets["gcp_service_account"]))
 
-    # private key fix (Streamlit newline problemi çözümü)
     if "private_key" in creds_dict:
         creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
 
@@ -55,12 +59,10 @@ def baglan():
     )
 
     client = gspread.authorize(creds)
-
-    # Google Sheet adı
     return client.open("faaliyet_kayitlari").sheet1
 
 
-# ---------------- VERİ ÇEK ----------------
+# ---------------- DATA ----------------
 try:
     sheet = baglan()
     df = pd.DataFrame(sheet.get_all_records())
@@ -69,11 +71,11 @@ except Exception as e:
     df = pd.DataFrame()
 
 
-# ---------------- MENÜ ----------------
+# ---------------- MENU ----------------
 st.sidebar.title("🧭 AKÜDAK Menü")
 
 sekme = st.sidebar.radio(
-    "Gitmek İstediğiniz Bölüm:",
+    "Bölüm",
     ["Ana Sayfa & Kayıt", "👤 Tırmanıcı Analizi", "🛠 Malzeme Karnesi"]
 )
 
@@ -101,11 +103,11 @@ malzemeler = [
 ]
 
 
-# ---------------- ANA SAYFA ----------------
+# ---------------- HOME ----------------
 if sekme == "Ana Sayfa & Kayıt":
-    st.title("🚀 AKÜDAK MEZUNLARI VERİ GİRİŞİ")
+    st.title("🚀 AKÜDAK VERİ GİRİŞİ")
 
-    # ip kontrol
+    # IP CHECK
     if not df.empty and "Malzeme" in df.columns:
         ip_df = df[df["Malzeme"].astype(str).str.contains("Volta", na=False)]
 
@@ -116,7 +118,7 @@ if sekme == "Ana Sayfa & Kayıt":
             st.subheader("🪢 İp Durumu")
 
             c1, c2, c3 = st.columns(3)
-            c1.metric("Toplam Kullanım (m)", toplam_metraj)
+            c1.metric("Toplam Kullanım", f"{toplam_metraj} m")
             c2.metric("Sert Düşüş", toplam_dusus)
 
             durum = "GÜVENLİ ✅" if (toplam_dusus < 5 and toplam_metraj < 5000) else "RİSKLİ ⚠️"
@@ -175,7 +177,7 @@ if sekme == "Ana Sayfa & Kayıt":
                 st.error(f"Kayıt Hatası: {e}")
 
 
-# ---------------- ANALİZ ----------------
+# ---------------- ANALYSIS ----------------
 elif sekme == "👤 Tırmanıcı Analizi":
     st.title("👤 Analiz")
 
@@ -187,33 +189,26 @@ elif sekme == "👤 Tırmanıcı Analizi":
         if not k_df.empty:
             c1, c2, c3 = st.columns(3)
 
-            c1.metric(
-                "Lider",
-                k_df[k_df["Stil"] == "Lider"]["Rota_Uz"].sum()
-            )
-
-            c2.metric(
-                "Top-Rope",
-                k_df[k_df["Stil"] == "Top-Rope"]["Rota_Uz"].sum()
-            )
-
+            c1.metric("Lider", k_df[k_df["Stil"] == "Lider"]["Rota_Uz"].sum())
+            c2.metric("Top-Rope", k_df[k_df["Stil"] == "Top-Rope"]["Rota_Uz"].sum())
             c3.metric("Son Zorluk", str(k_df["Zorluk"].iloc[-1]))
 
-            st.dataframe(k_df)
+            st.dataframe(k_df, use_container_width=True)
 
         else:
             st.warning("Veri yok")
 
 
-# ---------------- MALZEME ----------------
+# ---------------- MATERIAL ----------------
 elif sekme == "🛠 Malzeme Karnesi":
-    st.title("🛠 Malzeme")
+    st.title("🛠 Malzeme Takibi")
 
     if not df.empty:
         ozet = df.groupby("Malzeme").agg({
             "Toplam_Ip": "sum",
             "Dusus": "sum"
         })
+
         ozet.columns = ["Metraj", "Düşüş"]
 
         st.table(ozet)
