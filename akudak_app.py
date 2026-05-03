@@ -22,7 +22,10 @@ def baglan():
     # 🔥 KRİTİK DÜZELTME:
     # private_key içindeki \n karakterlerini gerçek newline'a çevir
     if "private_key" in creds_dict:
-        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+        import copy
+
+creds_dict = copy.deepcopy(dict(st.secrets["gcp_service_account"]))
+creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
 
     creds = Credentials.from_service_account_info(
         dict(creds_dict),
