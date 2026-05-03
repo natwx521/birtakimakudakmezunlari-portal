@@ -133,11 +133,11 @@ except Exception as e:
 
 
 # ---------------- SIDEBAR ----------------
-st.sidebar.title("🧭 AKÜDAK Menü")
+st.sidebar.title("🏔️ AKÜDAK Menü")
 
 page = st.sidebar.radio("Seçim", [
-    "🚀 Ana Sayfa",
-    "👤 Tırmanıcı Analizi",
+    "⛏️ Ana Sayfa",
+    "🧗 Tırmanıcı Analizi",
     "🛠 Malzeme Karnesi"
 ])
 
