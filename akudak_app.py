@@ -341,7 +341,10 @@ def malzeme():
 
 
 # ---------------- ROUTER ----------------
-if page == "🏔️ VERİ GİRİŞİ":
+if page == "🏠 ANA SAYFA":
+    ana_sayfa()
+
+elif page == "🏔️ VERİ GİRİŞİ":
     veri_giris()
 
 elif page == "🧗 Tırmanıcı Analizi":
@@ -349,6 +352,3 @@ elif page == "🧗 Tırmanıcı Analizi":
 
 elif page == "🛠 Malzeme Karnesi":
     malzeme()
-
-else:
-    ana_sayfa()
