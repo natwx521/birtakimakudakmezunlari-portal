@@ -9,7 +9,7 @@ import time
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
-    page_title="AKÜDAK Mezunları Portalı",
+    page_title="bir takım AKÜDAK mezunları Portalı",
     layout="wide"
 )
 
@@ -136,7 +136,7 @@ except Exception as e:
 st.sidebar.title("🏔️ AKÜDAK Menü")
 
 page = st.sidebar.radio("Seçim", [
-    "🏔️ Ana Sayfa",
+    "🏔️ VERİ GİRİŞİ",
     "🧗 Tırmanıcı Analizi",
     "🛠 Malzeme Karnesi"
 ])
@@ -149,7 +149,7 @@ kullanicilar = [
     "Emre DOĞAN", "Erhan YALÇIN", "Misafir"
 ]
 
-stiller = ["Lider", "Top-Rope"]
+stiller = ["LiderSpor", "LiderTRAD", "Top-Rope"]
 
 zorluk_dereceleri = [
     "IV", "V-", "V", "V+", "VI-", "VI", "VI+",
@@ -242,7 +242,7 @@ def malzeme():
 
 
 # ---------------- ROUTER ----------------
-if page == "🏔️ Ana Sayfa":
+if page == "🏔️ VERİ GİRİŞİ":
     ana_sayfa()
 
 elif page == "🧗 Tırmanıcı Analizi":
