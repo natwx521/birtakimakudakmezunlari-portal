@@ -22,7 +22,7 @@ def splash_screen():
         img = ""
 
     splash = st.empty()
-    text = "AKÜDAK, it's not a pipe!"
+    text = "     AKÜDAK, it's not a pipe!    "
     typed = ""
 
     for i in range(len(text)):
@@ -62,9 +62,9 @@ def splash_screen():
         </div>
         """, unsafe_allow_html=True)
 
-        time.sleep(0.08)
+        time.sleep(0.18)
 
-    time.sleep(0.5)
+    time.sleep(1)
     splash.empty()
 
 
