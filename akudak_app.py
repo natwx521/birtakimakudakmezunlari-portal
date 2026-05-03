@@ -171,9 +171,8 @@ def ip_kullanim_hesapla():
 
 
 # ---------------- SIDEBAR ----------------
-st.sidebar.title("🏔️ AKÜDAK Menü")
-
 page = st.sidebar.radio("Seçim", [
+    "🏠 ANA SAYFA",
     "🏔️ VERİ GİRİŞİ",
     "🧗 Tırmanıcı Analizi",
     "🛠 Malzeme Karnesi"
