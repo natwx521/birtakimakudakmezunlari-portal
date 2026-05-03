@@ -7,7 +7,32 @@ import copy
 
 # ---------------- SAYFA AYAR ----------------
 st.set_page_config(page_title="AKÜDAK Mezunları Portalı", layout="wide")
+def set_background(image_file):
+    import base64
 
+    with open(image_file, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode()
+
+    css = f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/png;base64,{encoded}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }}
+
+    /* form ve içerik okunabilir olsun diye */
+    .block-container {{
+        background-color: rgba(255, 255, 255, 0.85);
+        padding: 2rem;
+        border-radius: 10px;
+    }}
+    </style>
+    """
+
+    st.markdown(css, unsafe_allow_html=True)
 # ---------------- GOOGLE BAĞLANTI ----------------
 @st.cache_resource
 def baglan():
