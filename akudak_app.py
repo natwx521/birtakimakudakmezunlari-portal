@@ -233,14 +233,22 @@ def ana_sayfa():
             st.balloons()
 
 
-# ---------------- PAGE 2 ----------------
+# ---------------- PAGE 2 (MISAFİR FIX BURADA) ----------------
 def analiz():
     st.title("🧗 Tırmanıcı Analizi")
 
     secilen = st.selectbox("Kişi", kullanicilar)
 
     if not df.empty and "Yukleyen" in df.columns:
-        k = df[df["Yukleyen"] == secilen]
+
+        # normalize (boşluk / format hatası önleme)
+        df["Yukleyen"] = df["Yukleyen"].astype(str).str.strip()
+
+        # MISAFİR ÖZEL CASE → TAM KULLANICI GİBİ DAVRANIR
+        if secilen == "Misafir":
+            k = df.copy()
+        else:
+            k = df[df["Yukleyen"] == secilen]
 
         if not k.empty:
             c1, c2, c3 = st.columns(3)
