@@ -5,7 +5,6 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 import copy
 import base64
-import time
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -13,97 +12,32 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- SPLASH SCREEN ----------------
-def splash_screen():
-    try:
-        with open("resim_2.png", "rb") as f:
-            img = base64.b64encode(f.read()).decode()
-    except:
-        img = ""
-
-    splash = st.empty()
-    text = "     AKÜDAK, it's not a pipe!    "
-    typed = ""
-
-    for i in range(len(text)):
-        typed += text[i]
-
-        splash.markdown(f"""
-        <style>
-        body {{
-            background-color: black;
-        }}
-        .splash {{
-            background-color: black;
-            height: 100vh;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-        }}
-
-        .text {{
-            font-family: monospace;
-            font-size: 24px;
-            letter-spacing: 2px;
-            margin-top: 20px;
-        }}
-
-        img {{
-            width: 180px;
-        }}
-        </style>
-
-        <div class="splash">
-            <img src="data:image/png;base64,{img}">
-            <div class="text">{typed}|</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        time.sleep(0.18)
-
-    time.sleep(1)
-    splash.empty()
-
-
-# ---------------- RUN SPLASH ONCE ----------------
-if "loaded" not in st.session_state:
-    splash_screen()
-    st.session_state["loaded"] = True
-
-
 # ---------------- BACKGROUND ----------------
 def set_background(image_file):
-    try:
-        with open(image_file, "rb") as f:
-            encoded = base64.b64encode(f.read()).decode()
+    with open(image_file, "rb") as f:
+        encoded = base64.b64encode(f.read()).decode()
 
-        css = f"""
-        <style>
-        .stApp {{
-            background-image: url("data:image/png;base64,{encoded}");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }}
+    css = f"""
+    <style>
+    .stApp {{
+        background-image: url("data:image/png;base64,{encoded}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
 
-        .block-container {{
-            background-color: rgba(255,255,255,0.88);
-            padding: 2rem;
-            border-radius: 12px;
-        }}
-        </style>
-        """
-        st.markdown(css, unsafe_allow_html=True)
-    except:
-        pass
+    .block-container {{
+        background-color: rgba(255,255,255,0.88);
+        padding: 2rem;
+        border-radius: 12px;
+    }}
+    </style>
+    """
+    st.markdown(css, unsafe_allow_html=True)
 
 set_background("resim01.png")
 
-
-# ---------------- GOOGLE SHEET ----------------
+# ---------------- GOOGLE ----------------
 @st.cache_resource
 def baglan():
     scope = [
@@ -127,26 +61,24 @@ def baglan():
 try:
     sheet = baglan()
     df = pd.DataFrame(sheet.get_all_records())
-except Exception as e:
-    st.error(f"Bağlantı Hatası: {e}")
+except:
     df = pd.DataFrame()
 
 
 # ---------------- SIDEBAR ----------------
-st.sidebar.title("🏔️ AKÜDAK Menü")
-
-page = st.sidebar.radio("Seçim", [
-    "⛏️ Ana Sayfa",
-    "🧗 Tırmanıcı Analizi",
+st.sidebar.title("🧭 AKÜDAK Menü")
+page = st.sidebar.radio("Seçim Yap", [
+    "🚀 Ana Sayfa",
+    "👤 Tırmanıcı Analizi",
     "🛠 Malzeme Karnesi"
 ])
 
 
-# ---------------- DATA LISTS ----------------
+# ---------------- COMMON DATA ----------------
 kullanicilar = [
     "Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL",
     "Tanju DEMİREL", "Yavuz S. ÇAMUR",
-    "Emre DOĞAN", "Erhan YALÇIN", "Misafir"
+    "Emre DOĞAN", "Erhan YALÇIN"
 ]
 
 stiller = ["Lider", "Top-Rope"]
@@ -167,9 +99,13 @@ malzemeler = [
 ]
 
 
-# ---------------- PAGE 1 ----------------
+# =========================================================
+# 🚀 1. ANA SAYFA
+# =========================================================
 def ana_sayfa():
     st.title("🚀 AKÜDAK VERİ GİRİŞİ")
+
+    st.markdown("---")
 
     with st.form("form", clear_on_submit=True):
         col1, col2 = st.columns(2)
@@ -191,7 +127,6 @@ def ana_sayfa():
 
         if submit:
             ip = uzunluk * 2
-
             sheet.append_row([
                 str(tarih),
                 sektor,
@@ -204,12 +139,13 @@ def ana_sayfa():
                 malzeme,
                 dusus
             ])
-
-            st.success("Kayıt başarılı!")
+            st.success("Kayıt eklendi!")
             st.balloons()
 
 
-# ---------------- PAGE 2 ----------------
+# =========================================================
+# 👤 ANALİZ
+# =========================================================
 def analiz():
     st.title("👤 Tırmanıcı Analizi")
 
@@ -225,9 +161,13 @@ def analiz():
             c3.metric("Son Zorluk", str(k["Zorluk"].iloc[-1]))
 
             st.dataframe(k, use_container_width=True)
+        else:
+            st.warning("Veri yok")
 
 
-# ---------------- PAGE 3 ----------------
+# =========================================================
+# 🛠 MALZEME
+# =========================================================
 def malzeme():
     st.title("🛠 Malzeme Karnesi")
 
@@ -236,12 +176,13 @@ def malzeme():
             "Toplam_Ip": "sum",
             "Dusus": "sum"
         })
-
         o.columns = ["Metraj", "Düşüş"]
         st.table(o)
 
 
-# ---------------- ROUTER ----------------
+# =========================================================
+# 🔀 SAYFA ROUTER (ANINDA GEÇİŞ)
+# =========================================================
 if page == "🚀 Ana Sayfa":
     ana_sayfa()
 
