@@ -310,12 +310,18 @@ def analiz():
     secilen = st.selectbox("Kişi", kullanicilar)
 
     if not df.empty and "Yukleyen" in df.columns:
-        df["Yukleyen"] = df["Yukleyen"].astype(str).str.strip()
+
+        # 🔥 FIX 1: temizleme (boşluk + NaN koruması)
+        df["Yukleyen"] = df["Yukleyen"].fillna("").astype(str).str.strip()
 
         if secilen == "Misafir":
             k = df.copy()
         else:
             k = df[df["Yukleyen"] == secilen]
+
+        # 🔥 FIX 2: Misafir boş görünmesin diye fallback
+        if secilen == "Misafir" and k.empty:
+            k = df.copy()
 
         if not k.empty:
             c1, c2, c3 = st.columns(3)
