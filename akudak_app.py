@@ -5,6 +5,7 @@ from google.oauth2.service_account import Credentials
 from datetime import datetime
 import copy
 import base64
+import time
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -20,47 +21,57 @@ def splash_screen():
     except:
         img = ""
 
-    st.markdown(f"""
-    <style>
-    .splash {{
-        background-color: black;
-        height: 100vh;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 9999;
-    }}
+    splash = st.empty()
+    text = "AKÜDAK, it's not a pipe!"
+    typed = ""
 
-    .text {{
-        color: white;
-        font-family: monospace;
-        font-size: 22px;
-        margin-top: 20px;
-        letter-spacing: 2px;
-    }}
+    for i in range(len(text)):
+        typed += text[i]
 
-    img {{
-        width: 180px;
-    }}
-    </style>
+        splash.markdown(f"""
+        <style>
+        body {{
+            background-color: black;
+        }}
+        .splash {{
+            background-color: black;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }}
 
-    <div class="splash">
-        <img src="data:image/png;base64,{img}">
-        <div class="text">AKÜDAK, it's not a pipe!</div>
-    </div>
-    """, unsafe_allow_html=True)
+        .text {{
+            font-family: monospace;
+            font-size: 24px;
+            letter-spacing: 2px;
+            margin-top: 20px;
+        }}
+
+        img {{
+            width: 180px;
+        }}
+        </style>
+
+        <div class="splash">
+            <img src="data:image/png;base64,{img}">
+            <div class="text">{typed}|</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        time.sleep(0.08)
+
+    time.sleep(0.5)
+    splash.empty()
 
 
-# ---------------- SHOW SPLASH ONCE ----------------
+# ---------------- RUN SPLASH ONCE ----------------
 if "loaded" not in st.session_state:
     splash_screen()
     st.session_state["loaded"] = True
-    st.stop()
 
 
 # ---------------- BACKGROUND ----------------
@@ -69,7 +80,7 @@ def set_background(image_file):
         with open(image_file, "rb") as f:
             encoded = base64.b64encode(f.read()).decode()
 
-        st.markdown(f"""
+        css = f"""
         <style>
         .stApp {{
             background-image: url("data:image/png;base64,{encoded}");
@@ -84,7 +95,8 @@ def set_background(image_file):
             border-radius: 12px;
         }}
         </style>
-        """, unsafe_allow_html=True)
+        """
+        st.markdown(css, unsafe_allow_html=True)
     except:
         pass
 
