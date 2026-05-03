@@ -13,6 +13,29 @@ st.set_page_config(
     layout="wide"
 )
 
+# ---------------- ANDROID / MOBİL SCROLL FIX ----------------
+st.markdown("""
+<style>
+html, body {
+    overflow: auto !important;
+    height: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Streamlit container scroll fix */
+[data-testid="stAppViewContainer"] {
+    overflow: auto !important;
+    touch-action: pan-y !important;
+}
+
+/* Sidebar scroll stabil */
+section[data-testid="stSidebar"] {
+    overflow: auto !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 # ---------------- SPLASH SCREEN ----------------
 def splash_screen():
     try:
