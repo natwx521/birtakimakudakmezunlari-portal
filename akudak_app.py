@@ -3,12 +3,12 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
-import json
+import copy
 
-# 1. SAYFA AYARLARI
+# ---------------- SAYFA AYAR ----------------
 st.set_page_config(page_title="AKÜDAK Mezunları Portalı", layout="wide")
 
-# 2. GÜVENLİ BAĞLANTI (PEM HATASINA DAYANIKLI)
+# ---------------- GOOGLE BAĞLANTI ----------------
 @st.cache_resource
 def baglan():
     scope = [
@@ -16,28 +16,25 @@ def baglan():
         "https://www.googleapis.com/auth/drive"
     ]
 
-    # Streamlit secrets -> JSON güvenli okuma
-    creds_dict = st.secrets["gcp_service_account"]
+    # secrets kopyası (asla direkt değiştirme!)
+    creds_dict = copy.deepcopy(dict(st.secrets["gcp_service_account"]))
 
-    # 🔥 KRİTİK DÜZELTME:
-    # private_key içindeki \n karakterlerini gerçek newline'a çevir
+    # private key fix (Streamlit newline problemi çözümü)
     if "private_key" in creds_dict:
-        import copy
-
-creds_dict = copy.deepcopy(dict(st.secrets["gcp_service_account"]))
-creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
 
     creds = Credentials.from_service_account_info(
-        dict(creds_dict),
+        creds_dict,
         scopes=scope
     )
 
     client = gspread.authorize(creds)
 
+    # Google Sheet adı
     return client.open("faaliyet_kayitlari").sheet1
 
 
-# 3. VERİ ÇEKME
+# ---------------- VERİ ÇEK ----------------
 try:
     sheet = baglan()
     df = pd.DataFrame(sheet.get_all_records())
@@ -45,8 +42,10 @@ except Exception as e:
     st.error(f"Bağlantı Hatası: {e}")
     df = pd.DataFrame()
 
-# 4. MENÜ
+
+# ---------------- MENÜ ----------------
 st.sidebar.title("🧭 AKÜDAK Menü")
+
 sekme = st.sidebar.radio(
     "Gitmek İstediğiniz Bölüm:",
     ["Ana Sayfa & Kayıt", "👤 Tırmanıcı Analizi", "🛠 Malzeme Karnesi"]
@@ -75,11 +74,12 @@ malzemeler = [
     "Ekspres Set"
 ]
 
+
 # ---------------- ANA SAYFA ----------------
 if sekme == "Ana Sayfa & Kayıt":
     st.title("🚀 AKÜDAK MEZUNLARI VERİ GİRİŞİ")
 
-    # 🪢 İP ANALİZİ
+    # ip kontrol
     if not df.empty and "Malzeme" in df.columns:
         ip_df = df[df["Malzeme"].astype(str).str.contains("Volta", na=False)]
 
@@ -87,7 +87,7 @@ if sekme == "Ana Sayfa & Kayıt":
             toplam_metraj = ip_df["Toplam_Ip"].sum()
             toplam_dusus = ip_df["Dusus"].sum()
 
-            st.subheader("🪢 1 No'lu İp Durumu")
+            st.subheader("🪢 İp Durumu")
 
             c1, c2, c3 = st.columns(3)
             c1.metric("Toplam Kullanım (m)", toplam_metraj)
@@ -102,9 +102,9 @@ if sekme == "Ana Sayfa & Kayıt":
 
     st.divider()
 
-    # 📝 FORM
-    with st.form("yeni_kayit_formu", clear_on_submit=True):
-        st.subheader("📝 Yeni Faaliyet Girişi")
+    # FORM
+    with st.form("kayit", clear_on_submit=True):
+        st.subheader("📝 Yeni Faaliyet")
 
         col1, col2 = st.columns(2)
 
@@ -117,17 +117,17 @@ if sekme == "Ana Sayfa & Kayıt":
         with col2:
             stil = st.selectbox("Stil", stiller)
             zorluk = st.selectbox("Zorluk", zorluk_dereceleri)
-            uzunluk = st.number_input("Rota Uzunluğu (m)", min_value=0)
+            uzunluk = st.number_input("Uzunluk (m)", min_value=0)
             dusus = st.selectbox("Sert Düşüş", [0, 1, 2, 3])
             malzeme = st.selectbox("Ekipman", malzemeler)
 
-        detay = st.text_area("Teknik Notlar")
+        detay = st.text_area("Notlar")
 
         submit = st.form_submit_button("Kaydet")
 
         if submit:
             try:
-                toplam_ip = uzunluk * 2
+                ip_kullanim = uzunluk * 2
 
                 sheet.append_row([
                     str(tarih),
@@ -137,7 +137,7 @@ if sekme == "Ana Sayfa & Kayıt":
                     zorluk,
                     kisi,
                     uzunluk,
-                    toplam_ip,
+                    ip_kullanim,
                     malzeme,
                     dusus
                 ])
@@ -151,7 +151,7 @@ if sekme == "Ana Sayfa & Kayıt":
 
 # ---------------- ANALİZ ----------------
 elif sekme == "👤 Tırmanıcı Analizi":
-    st.title("👤 Tırmanıcı Analizi")
+    st.title("👤 Analiz")
 
     secilen = st.selectbox("Kişi", kullanicilar)
 
@@ -162,33 +162,32 @@ elif sekme == "👤 Tırmanıcı Analizi":
             c1, c2, c3 = st.columns(3)
 
             c1.metric(
-                "Lider Metraj",
+                "Lider",
                 k_df[k_df["Stil"] == "Lider"]["Rota_Uz"].sum()
             )
 
             c2.metric(
-                "Top-Rope Metraj",
+                "Top-Rope",
                 k_df[k_df["Stil"] == "Top-Rope"]["Rota_Uz"].sum()
             )
 
             c3.metric("Son Zorluk", str(k_df["Zorluk"].iloc[-1]))
 
-            st.dataframe(k_df, use_container_width=True)
+            st.dataframe(k_df)
 
         else:
-            st.warning("Veri bulunamadı.")
+            st.warning("Veri yok")
 
 
 # ---------------- MALZEME ----------------
 elif sekme == "🛠 Malzeme Karnesi":
-    st.title("🛠 Malzeme Takibi")
+    st.title("🛠 Malzeme")
 
     if not df.empty:
         ozet = df.groupby("Malzeme").agg({
             "Toplam_Ip": "sum",
             "Dusus": "sum"
         })
-
-        ozet.columns = ["Toplam Metraj (m)", "Toplam Düşüş"]
+        ozet.columns = ["Metraj", "Düşüş"]
 
         st.table(ozet)
