@@ -10,10 +10,11 @@ import time
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="bir takım AKÜDAK mezunları Portalı",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# ---------------- ANDROID / MOBİL SCROLL FIX ----------------
+# ---------------- ANDROID / MOBİL STABILITY FIX ----------------
 st.markdown("""
 <style>
 html, body {
@@ -22,13 +23,11 @@ html, body {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Streamlit container scroll fix */
 [data-testid="stAppViewContainer"] {
     overflow: auto !important;
     touch-action: pan-y !important;
 }
 
-/* Sidebar scroll stabil */
 section[data-testid="stSidebar"] {
     overflow: auto !important;
 }
@@ -158,7 +157,8 @@ except Exception as e:
 # ---------------- SIDEBAR ----------------
 st.sidebar.title("🏔️ AKÜDAK Menü")
 
-page = st.sidebar.radio("Seçim", [
+# 🔥 CRITICAL FIX: radio yerine selectbox (mobil scroll/rerun bug fix)
+page = st.sidebar.selectbox("Seçim", [
     "🏔️ VERİ GİRİŞİ",
     "🧗 Tırmanıcı Analizi",
     "🛠 Malzeme Karnesi"
