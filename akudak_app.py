@@ -6,7 +6,7 @@ from datetime import datetime
 import copy
 import base64
 
-# ---------------- PAGE SETUP ----------------
+# ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="AKÜDAK Mezunları Portalı",
     layout="wide"
@@ -23,7 +23,6 @@ def set_background(image_file):
         background-image: url("data:image/png;base64,{encoded}");
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
         background-attachment: fixed;
     }}
 
@@ -36,11 +35,9 @@ def set_background(image_file):
     """
     st.markdown(css, unsafe_allow_html=True)
 
-# 👉 background dosyan varsa aç
 set_background("resim01.png")
 
-
-# ---------------- GOOGLE CONNECTION ----------------
+# ---------------- GOOGLE ----------------
 @st.cache_resource
 def baglan():
     scope = [
@@ -49,9 +46,7 @@ def baglan():
     ]
 
     creds_dict = copy.deepcopy(dict(st.secrets["gcp_service_account"]))
-
-    if "private_key" in creds_dict:
-        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
+    creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n")
 
     creds = Credentials.from_service_account_info(
         creds_dict,
@@ -66,19 +61,20 @@ def baglan():
 try:
     sheet = baglan()
     df = pd.DataFrame(sheet.get_all_records())
-except Exception as e:
-    st.error(f"Bağlantı Hatası: {e}")
+except:
     df = pd.DataFrame()
 
 
-# ---------------- MENU ----------------
+# ---------------- SIDEBAR ----------------
 st.sidebar.title("🧭 AKÜDAK Menü")
+page = st.sidebar.radio("Seçim Yap", [
+    "🚀 Ana Sayfa",
+    "👤 Tırmanıcı Analizi",
+    "🛠 Malzeme Karnesi"
+])
 
-sekme = st.sidebar.radio(
-    "Bölüm",
-    ["Ana Sayfa & Kayıt", "👤 Tırmanıcı Analizi", "🛠 Malzeme Karnesi"]
-)
 
+# ---------------- COMMON DATA ----------------
 kullanicilar = [
     "Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL",
     "Tanju DEMİREL", "Yavuz S. ÇAMUR",
@@ -103,37 +99,15 @@ malzemeler = [
 ]
 
 
-# ---------------- HOME ----------------
-if sekme == "Ana Sayfa & Kayıt":
+# =========================================================
+# 🚀 1. ANA SAYFA
+# =========================================================
+def ana_sayfa():
     st.title("🚀 AKÜDAK VERİ GİRİŞİ")
 
-    # IP CHECK
-    if not df.empty and "Malzeme" in df.columns:
-        ip_df = df[df["Malzeme"].astype(str).str.contains("Volta", na=False)]
+    st.markdown("---")
 
-        if not ip_df.empty:
-            toplam_metraj = ip_df["Toplam_Ip"].sum()
-            toplam_dusus = ip_df["Dusus"].sum()
-
-            st.subheader("🪢 İp Durumu")
-
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Toplam Kullanım", f"{toplam_metraj} m")
-            c2.metric("Sert Düşüş", toplam_dusus)
-
-            durum = "GÜVENLİ ✅" if (toplam_dusus < 5 and toplam_metraj < 5000) else "RİSKLİ ⚠️"
-
-            if "GÜVENLİ" in durum:
-                c3.success(durum)
-            else:
-                c3.error(durum)
-
-    st.divider()
-
-    # FORM
-    with st.form("kayit", clear_on_submit=True):
-        st.subheader("📝 Yeni Faaliyet")
-
+    with st.form("form", clear_on_submit=True):
         col1, col2 = st.columns(2)
 
         with col1:
@@ -145,70 +119,75 @@ if sekme == "Ana Sayfa & Kayıt":
         with col2:
             stil = st.selectbox("Stil", stiller)
             zorluk = st.selectbox("Zorluk", zorluk_dereceleri)
-            uzunluk = st.number_input("Uzunluk (m)", min_value=0)
-            dusus = st.selectbox("Sert Düşüş", [0, 1, 2, 3])
+            uzunluk = st.number_input("Uzunluk", 0)
+            dusus = st.selectbox("Düşüş", [0, 1, 2, 3])
             malzeme = st.selectbox("Ekipman", malzemeler)
-
-        detay = st.text_area("Notlar")
 
         submit = st.form_submit_button("Kaydet")
 
         if submit:
-            try:
-                ip_kullanim = uzunluk * 2
-
-                sheet.append_row([
-                    str(tarih),
-                    sektor,
-                    rota,
-                    stil,
-                    zorluk,
-                    kisi,
-                    uzunluk,
-                    ip_kullanim,
-                    malzeme,
-                    dusus
-                ])
-
-                st.success("Kayıt başarılı!")
-                st.balloons()
-
-            except Exception as e:
-                st.error(f"Kayıt Hatası: {e}")
+            ip = uzunluk * 2
+            sheet.append_row([
+                str(tarih),
+                sektor,
+                rota,
+                stil,
+                zorluk,
+                kisi,
+                uzunluk,
+                ip,
+                malzeme,
+                dusus
+            ])
+            st.success("Kayıt eklendi!")
+            st.balloons()
 
 
-# ---------------- ANALYSIS ----------------
-elif sekme == "👤 Tırmanıcı Analizi":
-    st.title("👤 Analiz")
+# =========================================================
+# 👤 ANALİZ
+# =========================================================
+def analiz():
+    st.title("👤 Tırmanıcı Analizi")
 
     secilen = st.selectbox("Kişi", kullanicilar)
 
     if not df.empty and "Yukleyen" in df.columns:
-        k_df = df[df["Yukleyen"] == secilen]
+        k = df[df["Yukleyen"] == secilen]
 
-        if not k_df.empty:
+        if not k.empty:
             c1, c2, c3 = st.columns(3)
+            c1.metric("Lider", k[k["Stil"] == "Lider"]["Rota_Uz"].sum())
+            c2.metric("Top-Rope", k[k["Stil"] == "Top-Rope"]["Rota_Uz"].sum())
+            c3.metric("Son Zorluk", str(k["Zorluk"].iloc[-1]))
 
-            c1.metric("Lider", k_df[k_df["Stil"] == "Lider"]["Rota_Uz"].sum())
-            c2.metric("Top-Rope", k_df[k_df["Stil"] == "Top-Rope"]["Rota_Uz"].sum())
-            c3.metric("Son Zorluk", str(k_df["Zorluk"].iloc[-1]))
-
-            st.dataframe(k_df, use_container_width=True)
-
+            st.dataframe(k, use_container_width=True)
         else:
             st.warning("Veri yok")
 
 
-# ---------------- MATERIAL ----------------
-elif sekme == "🛠 Malzeme Karnesi":
-    st.title("🛠 Malzeme Takibi")
+# =========================================================
+# 🛠 MALZEME
+# =========================================================
+def malzeme():
+    st.title("🛠 Malzeme Karnesi")
 
     if not df.empty:
-        ozet = df.groupby("Malzeme").agg({
+        o = df.groupby("Malzeme").agg({
             "Toplam_Ip": "sum",
             "Dusus": "sum"
         })
+        o.columns = ["Metraj", "Düşüş"]
+        st.table(o)
 
-        ozet.columns = ["Metraj", "Düşüş"]
 
-        st.table(ozet)
+# =========================================================
+# 🔀 SAYFA ROUTER (ANINDA GEÇİŞ)
+# =========================================================
+if page == "🚀 Ana Sayfa":
+    ana_sayfa()
+
+elif page == "👤 Tırmanıcı Analizi":
+    analiz()
+
+elif page == "🛠 Malzeme Karnesi":
+    malzeme()
