@@ -55,10 +55,10 @@ def splash_screen():
         splash.markdown(f"""
         <style>
         body {{
-            background-color: white;
+            background-color: black;
         }}
         .splash {{
-            background-color: black;
+            background-color: white;
             height: 100vh;
             width: 100%;
             display: flex;
