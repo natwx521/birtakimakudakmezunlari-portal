@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
-from datetime import datetime
+from datetime import datetime, date
 import copy
 import base64
 import time
@@ -66,7 +66,7 @@ def splash_screen():
             justify-content: flex-start;
             align-items: center;
             color: red;
-            padding-top: 80px; /* kontrol edilebilir boşluk */
+            padding-top: 80px;
         }}
 
         .text {{
@@ -191,10 +191,58 @@ malzemeler = [
     "Ekspres Set"
 ]
 
+# 🔥 EKLENEN: MALZEME SABİT LİSTE
+malzeme_sabit = [
+    {"ad": "Petzl Volta Guide 9.0mm (80m)", "tarih": "30.03.2026", "tip": "ip"},
+    {"ad": "Corax LT Kemer M", "tarih": "30.03.2026", "tip": "tekstil"},
+    {"ad": "Corax LT Kemer XL", "tarih": "30.03.2026", "tip": "tekstil"},
+    {"ad": "Petzl Reverso Kırm.", "tarih": "30.03.2026", "tip": "metal"},
+    {"ad": "Petzl Reverso Yeşil.", "tarih": "30.03.2026", "tip": "metal"},
+    {"ad": "Ekspres Set", "tarih": "30.03.2026", "tip": "tekstil"}
+]
+
+# 🔥 EKLENEN: ÖMÜR HESAP
+def omur_hesapla(tarih_str, tip, metraj=0, dusus=0):
+    tarih = datetime.strptime(tarih_str, "%d.%m.%Y").date()
+    yil = (date.today() - tarih).days / 365
+
+    if tip == "metal":
+        kalan = max(0, 1 - yil / 10)
+    elif tip == "tekstil":
+        kalan = max(0, 1 - yil / 10)
+    elif tip == "ip":
+        yas = yil / 10
+        metraj_oran = metraj / 5000
+        dusus_oran = dusus / 10
+        kalan = max(0, 1 - (yas + metraj_oran + dusus_oran))
+
+    return kalan
+
+def renk(kalan):
+    if kalan > 0.7:
+        return "green"
+    elif kalan > 0.4:
+        return "orange"
+    else:
+        return "red"
+
 
 # ---------------- PAGE 1 ----------------
 def ana_sayfa():
     st.title("🏔️ AKÜDAK VERİ GİRİŞİ")
+
+    # 🔥 EKLENEN: MALZEME ÖMÜR PANELİ
+    st.subheader("🧗 Malzeme Durumu")
+
+    for m in malzeme_sabit:
+        kalan = omur_hesapla(m["tarih"], m["tip"], metraj=1000, dusus=1)
+
+        st.write(f"**{m['ad']}**")
+        st.progress(kalan)
+        st.markdown(
+            f"<div style='color:{renk(kalan)}'>%{int(kalan*100)} kalan</div>",
+            unsafe_allow_html=True
+        )
 
     with st.form("form", clear_on_submit=True):
         col1, col2 = st.columns(2)
@@ -234,18 +282,15 @@ def ana_sayfa():
             st.balloons()
 
 
-# ---------------- PAGE 2 (MISAFİR FIX BURADA) ----------------
+# ---------------- PAGE 2 ----------------
 def analiz():
     st.title("🧗 Tırmanıcı Analizi")
 
     secilen = st.selectbox("Kişi", kullanicilar)
 
     if not df.empty and "Yukleyen" in df.columns:
-
-        # normalize (boşluk / format hatası önleme)
         df["Yukleyen"] = df["Yukleyen"].astype(str).str.strip()
 
-        # MISAFİR ÖZEL CASE → TAM KULLANICI GİBİ DAVRANIR
         if secilen == "Misafir":
             k = df.copy()
         else:
