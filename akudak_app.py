@@ -46,7 +46,7 @@ def splash_screen():
         img = ""
 
     splash = st.empty()
-    text = "     AKÜDAK, it's not       __a pipe!!!     "
+    text = "     AKÜDAK, it's not a pipe!!!     "
     typed = ""
 
     for i in range(len(text)):
@@ -55,7 +55,7 @@ def splash_screen():
         splash.markdown(f"""
         <style>
         body {{
-            background-color: black;
+            background-color: white;
         }}
         .splash {{
             background-color: black;
