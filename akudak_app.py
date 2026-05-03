@@ -233,7 +233,7 @@ def ana_sayfa():
             st.balloons()
 
 
-# ---------------- PAGE 2 (MISAFİR FIX BURADA) ----------------
+# ---------------- PAGE 2 (MISAFİR ARTIK NORMAL KULLANICI) ----------------
 def analiz():
     st.title("🧗 Tırmanıcı Analizi")
 
@@ -241,20 +241,28 @@ def analiz():
 
     if not df.empty and "Yukleyen" in df.columns:
 
-        # normalize (boşluk / format hatası önleme)
         df["Yukleyen"] = df["Yukleyen"].astype(str).str.strip()
 
-        # MISAFİR ÖZEL CASE → TAM KULLANICI GİBİ DAVRANIR
-        if secilen == "Misafir":
-            k = df.copy()
-        else:
-            k = df[df["Yukleyen"] == secilen]
+        # 🔥 HER KULLANICI AYNI MANTIKTA
+        k = df[df["Yukleyen"] == secilen]
 
         if not k.empty:
             c1, c2, c3 = st.columns(3)
-            c1.metric("Lider", k[k["Stil"] == "Lider"]["Rota_Uz"].sum())
-            c2.metric("Top-Rope", k[k["Stil"] == "Top-Rope"]["Rota_Uz"].sum())
-            c3.metric("Son Zorluk", str(k["Zorluk"].iloc[-1]))
+
+            c1.metric(
+                "Lider",
+                k[k["Stil"] == "Lider"]["Rota_Uz"].sum()
+            )
+
+            c2.metric(
+                "Top-Rope",
+                k[k["Stil"] == "Top-Rope"]["Rota_Uz"].sum()
+            )
+
+            c3.metric(
+                "Son Zorluk",
+                str(k["Zorluk"].iloc[-1])
+            )
 
             st.dataframe(k, use_container_width=True)
 
