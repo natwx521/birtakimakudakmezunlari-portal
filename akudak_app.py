@@ -10,26 +10,28 @@ import time
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="bir takım AKÜDAK mezunları Portalı",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# ---------------- ANDROID / MOBİL STABILITY FIX ----------------
+# ---------------- ANDROID SCROLL / REFRESH FIX (ONLY ADDITION) ----------------
 st.markdown("""
 <style>
 html, body {
-    overflow: auto !important;
-    height: 100%;
+    overscroll-behavior: none !important;
     -webkit-overflow-scrolling: touch;
 }
 
 [data-testid="stAppViewContainer"] {
-    overflow: auto !important;
+    overscroll-behavior: none !important;
     touch-action: pan-y !important;
 }
 
-section[data-testid="stSidebar"] {
-    overflow: auto !important;
+input, textarea, select {
+    scroll-margin: 100px;
+}
+
+body {
+    overscroll-behavior-y: contain;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -157,8 +159,7 @@ except Exception as e:
 # ---------------- SIDEBAR ----------------
 st.sidebar.title("🏔️ AKÜDAK Menü")
 
-# 🔥 CRITICAL FIX: radio yerine selectbox (mobil scroll/rerun bug fix)
-page = st.sidebar.selectbox("Seçim", [
+page = st.sidebar.radio("Seçim", [
     "🏔️ VERİ GİRİŞİ",
     "🧗 Tırmanıcı Analizi",
     "🛠 Malzeme Karnesi"
