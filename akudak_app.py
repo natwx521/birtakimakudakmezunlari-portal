@@ -237,7 +237,11 @@ def ana_sayfa():
 def analiz():
     st.title("🧗 Tırmanıcı Analizi")
 
-    secilen = st.selectbox("Kişi", kullanicilar)
+   secilen = st.selectbox(
+    "Kişi",
+    kullanicilar,
+    key="kisi_secim"
+)
 
     if not df.empty and "Yukleyen" in df.columns:
 
