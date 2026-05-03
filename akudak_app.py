@@ -13,7 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- ANDROID SCROLL / REFRESH FIX (ONLY ADDITION) ----------------
+# ---------------- ANDROID SCROLL / REFRESH FIX ----------------
 st.markdown("""
 <style>
 html, body {
@@ -157,6 +157,19 @@ except Exception as e:
     df = pd.DataFrame()
 
 
+# 🔥 EKLENEN: METRAJ & DÜŞÜŞ OTOMATİK HESAP
+def ip_kullanim_hesapla():
+    if df.empty:
+        return 0, 0
+
+    if "Toplam_Ip" in df.columns and "Dusus" in df.columns:
+        toplam_metraj = df["Toplam_Ip"].sum()
+        toplam_dusus = df["Dusus"].sum()
+        return toplam_metraj, toplam_dusus
+
+    return 0, 0
+
+
 # ---------------- SIDEBAR ----------------
 st.sidebar.title("🏔️ AKÜDAK Menü")
 
@@ -191,7 +204,7 @@ malzemeler = [
     "Ekspres Set"
 ]
 
-# 🔥 EKLENEN: MALZEME SABİT LİSTE
+# ---------------- MALZEME SABİT ----------------
 malzeme_sabit = [
     {"ad": "Petzl Volta Guide 9.0mm (80m)", "tarih": "30.03.2026", "tip": "ip"},
     {"ad": "Corax LT Kemer M", "tarih": "30.03.2026", "tip": "tekstil"},
@@ -201,7 +214,7 @@ malzeme_sabit = [
     {"ad": "Ekspres Set", "tarih": "30.03.2026", "tip": "tekstil"}
 ]
 
-# 🔥 EKLENEN: ÖMÜR HESAP
+# ---------------- ÖMÜR ----------------
 def omur_hesapla(tarih_str, tip, metraj=0, dusus=0):
     tarih = datetime.strptime(tarih_str, "%d.%m.%Y").date()
     yil = (date.today() - tarih).days / 365
@@ -229,20 +242,29 @@ def renk(kalan):
 
 # ---------------- PAGE 1 ----------------
 def ana_sayfa():
-    st.title("🏔️ AKÜDAK VERİ GİRİŞİ")
-
-    # 🔥 EKLENEN: MALZEME ÖMÜR PANELİ
+    st.title("🏔️ AKÜDAK ANA EKRAN")
     st.subheader("🧗 Malzeme Durumu")
 
-    for m in malzeme_sabit:
-        kalan = omur_hesapla(m["tarih"], m["tip"], metraj=1000, dusus=1)
+    ip_metraj, ip_dusus = ip_kullanim_hesapla()
 
-        st.write(f"**{m['ad']}**")
+    for m in malzeme_sabit:
+
+        if m["tip"] == "ip":
+            kalan = omur_hesapla(m["tarih"], m["tip"], ip_metraj, ip_dusus)
+        else:
+            kalan = omur_hesapla(m["tarih"], m["tip"])
+
+        st.write(f"**{m['ad']}**  \n📅 Edinme: {m['tarih']}")
         st.progress(kalan)
         st.markdown(
             f"<div style='color:{renk(kalan)}'>%{int(kalan*100)} kalan</div>",
             unsafe_allow_html=True
         )
+
+
+# ---------------- PAGE 2 ----------------
+def veri_giris():
+    st.title("🏔️ AKÜDAK VERİ GİRİŞİ")
 
     with st.form("form", clear_on_submit=True):
         col1, col2 = st.columns(2)
@@ -282,7 +304,7 @@ def ana_sayfa():
             st.balloons()
 
 
-# ---------------- PAGE 2 ----------------
+# ---------------- PAGE 3 ----------------
 def analiz():
     st.title("🧗 Tırmanıcı Analizi")
 
@@ -305,7 +327,7 @@ def analiz():
             st.dataframe(k, use_container_width=True)
 
 
-# ---------------- PAGE 3 ----------------
+# ---------------- PAGE 4 ----------------
 def malzeme():
     st.title("🛠 Malzeme Karnesi")
 
@@ -321,10 +343,13 @@ def malzeme():
 
 # ---------------- ROUTER ----------------
 if page == "🏔️ VERİ GİRİŞİ":
-    ana_sayfa()
+    veri_giris()
 
 elif page == "🧗 Tırmanıcı Analizi":
     analiz()
 
 elif page == "🛠 Malzeme Karnesi":
     malzeme()
+
+else:
+    ana_sayfa()
