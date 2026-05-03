@@ -87,7 +87,7 @@ def splash_screen():
         </div>
         """, unsafe_allow_html=True)
 
-        time.sleep(0.18)
+        time.sleep(0.14)
 
     time.sleep(1)
     splash.empty()
@@ -233,7 +233,7 @@ def omur_hesapla(tarih_str, tip, metraj=0, dusus=0):
 def renk(kalan):
     if kalan > 0.7:
         return "green"
-    elif kalan > 0.4:
+    elif kalan > 0.3:
         return "orange"
     else:
         return "red"
@@ -241,7 +241,7 @@ def renk(kalan):
 
 # ---------------- PAGE 1 ----------------
 def ana_sayfa():
-    st.title("🏔️ AKÜDAK ANA EKRAN")
+    st.title("🏔️ AKÜDAK MEZUN ANA EKRAN")
     st.subheader("🧗 Malzeme Durumu")
 
     ip_metraj, ip_dusus = ip_kullanim_hesapla()
@@ -263,7 +263,7 @@ def ana_sayfa():
 
 # ---------------- PAGE 2 ----------------
 def veri_giris():
-    st.title("🏔️ AKÜDAK VERİ GİRİŞİ")
+    st.title("🏔️ AKÜDAK MEZUN VERİ GİRİŞİ")
 
     with st.form("form", clear_on_submit=True):
         col1, col2 = st.columns(2)
