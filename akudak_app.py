@@ -58,14 +58,15 @@ def splash_screen():
             background-color: black;
         }}
         .splash {{
-            background-color: white;
+            background-color: black;
             height: 100vh;
             width: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             color: red;
+            padding-top: 80px; /* kontrol edilebilir boşluk */
         }}
 
         .text {{
