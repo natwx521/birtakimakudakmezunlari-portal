@@ -12,6 +12,27 @@ st.set_page_config(
     page_title="bir takım AKÜDAK mezunları Portalı",
     layout="wide"
 )
+st.markdown("""
+<style>
+
+/* 🔥 DROPDOWN POPUP YÜKSEKLİĞİ */
+div[data-baseweb="popover"] {
+    max-height: 600px !important;
+}
+
+/* 🔥 LİSTE KUTUSU */
+ul[role="listbox"] {
+    max-height: 600px !important;
+    overflow-y: auto !important;
+}
+
+/* 🔥 MENU KATMANI */
+div[data-baseweb="menu"] {
+    max-height: 600px !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # ---------------- ANDROID SCROLL / REFRESH FIX ----------------
 st.markdown("""
