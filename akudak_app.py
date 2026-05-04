@@ -283,7 +283,17 @@ def veri_giris():
         col1, col2 = st.columns(2)
 
         with col1:
-            kisi = st.selectbox("Tırmanıcı", kullanicilar)
+            kisi_input = st.text_input("Tırmanıcı (yazmaya başla)", "")
+
+# filtreleme
+filtreli = [k for k in kullanicilar if kisi_input.lower() in k.lower()] if kisi_input else kullanicilar
+
+# eğer sadece 1 sonuç kaldıysa otomatik seç
+if len(filtreli) == 1:
+    kisi = filtreli[0]
+    st.success(f"Seçildi: {kisi}")
+else:
+    kisi = st.selectbox("Seçim", filtreli)
             tarih = st.date_input("Tarih", datetime.now())
             sektor = st.text_input("Sektör")
             rota = st.text_input("Rota")
