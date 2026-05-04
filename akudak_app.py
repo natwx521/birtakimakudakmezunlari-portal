@@ -128,7 +128,7 @@ section[data-testid="stSidebar"] > div {{
     backdrop-filter: blur(0px);
 }}
         .block-container {{
-            background-color: rgba(255,255,255,0.88);
+            background-color: rgba(255,255,255,0.5);
             padding: 2rem;
             border-radius: 12px;
         }}
