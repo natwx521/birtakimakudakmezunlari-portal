@@ -325,7 +325,7 @@ def analiz():
 
         if not k.empty:
             c1, c2, c3 = st.columns(3)
-            c1.metric("Lider", k[k["Stil"] == "Lider"]["Rota_Uz"].sum())
+            c1.metric("Lider", k[k["Stil"].str.contains("Lider", na=False)]["Rota_Uz"].sum())
             c2.metric("Top-Rope", k[k["Stil"] == "Top-Rope"]["Rota_Uz"].sum())
             c3.metric("Son Zorluk", str(k["Zorluk"].iloc[-1]))
 
