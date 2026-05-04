@@ -33,6 +33,10 @@ input, textarea, select {
 body {
     overscroll-behavior-y: contain;
 }
+ul[role="listbox"] {
+    max-height: 500px !important;
+    overflow-y: auto !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
