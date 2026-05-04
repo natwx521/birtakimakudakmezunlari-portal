@@ -122,7 +122,11 @@ def set_background(image_file):
             background-size: cover;
             background-position: center;
         }}
-
+/* 🔥 BURAYI EKLEDİN */
+section[data-testid="stSidebar"] > div {{
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(8px);
+}}
         .block-container {{
             background-color: rgba(255,255,255,0.88);
             padding: 2rem;
