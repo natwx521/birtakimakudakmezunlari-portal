@@ -105,6 +105,9 @@ def set_background(image_file):
         with open(image_file, "rb") as f:
             encoded = base64.b64encode(f.read()).decode()
 
+        with open("resim03.PNG", "rb") as f2:
+            sidebar_encoded = base64.b64encode(f2.read()).decode()
+
         css = f"""
         <style>
         .stApp {{
@@ -113,11 +116,12 @@ def set_background(image_file):
             background-position: center;
             background-attachment: fixed;
         }}
-        section[data-testid="stSidebar"] {
-    background-image: url("resim03.PNG");
-    background-size: cover;
-    background-position: center;
-}
+
+        section[data-testid="stSidebar"] {{
+            background-image: url("data:image/png;base64,{sidebar_encoded}");
+            background-size: cover;
+            background-position: center;
+        }}
 
         .block-container {{
             background-color: rgba(255,255,255,0.88);
@@ -127,6 +131,7 @@ def set_background(image_file):
         </style>
         """
         st.markdown(css, unsafe_allow_html=True)
+
     except:
         pass
 
