@@ -16,14 +16,22 @@ st.set_page_config(
 # ---------------- ANDROID SCROLL / REFRESH FIX ----------------
 st.markdown("""
 <style>
-div[data-baseweb="select"] div {
-    max-height: 350px !important;
+html, body {
+    overscroll-behavior: none !important;
+    -webkit-overflow-scrolling: touch;
 }
 
-div[role="listbox"] {
-    max-height: 350px !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
+[data-testid="stAppViewContainer"] {
+    overscroll-behavior: none !important;
+    touch-action: pan-y !important;
+}
+
+input, textarea, select {
+    scroll-margin: 100px;
+}
+
+body {
+    overscroll-behavior-y: contain;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -106,25 +114,10 @@ def set_background(image_file):
             background-attachment: fixed;
         }}
 
-        /* LIGHT MODE */
-        @media (prefers-color-scheme: light) {{
-            .block-container {{
-                background-color: rgba(255,255,255,0.88);
-                color: black;
-            }}
-        }}
-
-        /* DARK MODE */
-        @media (prefers-color-scheme: dark) {{
-            .block-container {{
-                background-color: rgba(0,0,0,0.75);
-                color: white;
-            }}
-        }}
-
-        /* Sidebar uyumu */
-        section[data-testid="stSidebar"] {{
-            background-color: inherit !important;
+        .block-container {{
+            background-color: rgba(255,255,255,0.88);
+            padding: 2rem;
+            border-radius: 12px;
         }}
         </style>
         """
@@ -318,6 +311,7 @@ def analiz():
 
     if not df.empty and "Yukleyen" in df.columns:
 
+        # 🔥 FIX 1: temizleme (boşluk + NaN koruması)
         df["Yukleyen"] = df["Yukleyen"].fillna("").astype(str).str.strip()
 
         if secilen == "Misafir":
@@ -325,6 +319,7 @@ def analiz():
         else:
             k = df[df["Yukleyen"] == secilen]
 
+        # 🔥 FIX 2: Misafir boş görünmesin diye fallback
         if secilen == "Misafir" and k.empty:
             k = df.copy()
 
