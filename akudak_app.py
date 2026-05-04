@@ -124,7 +124,7 @@ def set_background(image_file):
         }}
 /* 🔥 BURAYI EKLEDİN */
 section[data-testid="stSidebar"] > div {{
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: rgba(255, 255, 255, 0.5) !important;
     backdrop-filter: blur(0px);
 }}
         .block-container {{
