@@ -321,7 +321,13 @@ def veri_giris():
 def analiz():
     st.title("🧗 Tırmanıcı Analizi")
 
-    secilen = st.selectbox("Kişi", kullanicilar)
+    secilen_list = st.multiselect(
+    "Kişi (yazmaya başla)",
+    kullanicilar,
+    max_selections=1
+)
+
+secilen = secilen_list[0] if secilen_list else None
 
     if not df.empty and "Yukleyen" in df.columns:
 
