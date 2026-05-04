@@ -46,7 +46,7 @@ def splash_screen():
         img = ""
 
     splash = st.empty()
-    text = "_     It's not a pipe!!!  It's AKÜDAK....      _"
+    text = "_     It's not a pipe!!!  It's AKÜDAK...      _"
     typed = ""
 
     for i in range(len(text)):
@@ -128,7 +128,7 @@ section[data-testid="stSidebar"] > div {{
     backdrop-filter: blur(0px);
 }}
         .block-container {{
-            background-color: rgba(255,255,255,0.5);
+            background-color: rgba(255,255,255,0.3);
             padding: 2rem;
             border-radius: 12px;
         }}
