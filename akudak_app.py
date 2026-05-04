@@ -321,7 +321,7 @@ def veri_giris():
 def analiz():
     st.title("🧗 Tırmanıcı Analizi")
 
-secilen = st.selectbox("Kişi", kullanicilar)
+    secilen = st.selectbox("Kişi", kullanicilar)
 
     if not df.empty and "Yukleyen" in df.columns:
 
