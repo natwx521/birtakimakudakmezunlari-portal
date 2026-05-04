@@ -194,11 +194,11 @@ page = st.sidebar.radio("Seçim", [
 
 
 # ---------------- DATA LISTS ----------------
-kullanicilar = [
+kullanicilar = sorted([
     "Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL",
     "Tanju DEMİREL", "Yavuz S. ÇAMUR",
     "Emre DOĞAN", "Erhan YALÇIN", "Misafir"
-]
+])
 
 stiller = ["LiderSpor", "LiderTRAD", "Top-Rope"]
 
