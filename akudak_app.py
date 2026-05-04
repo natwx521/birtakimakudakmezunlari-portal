@@ -33,16 +33,6 @@ input, textarea, select {
 body {
     overscroll-behavior-y: contain;
 }
-/* 🔥 DROPDOWN BÜYÜTME */
-ul[role="listbox"] {
-    height: 800px !important;
-    max-height: 800px !important;
-    overflow-y: auto !important;
-}
-ul[role="listbox"] {
-    max-height: 800px !important;
-    overflow-y: auto !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
