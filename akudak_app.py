@@ -12,27 +12,6 @@ st.set_page_config(
     page_title="bir takım AKÜDAK mezunları Portalı",
     layout="wide"
 )
-st.markdown("""
-<style>
-
-/* 🔥 DROPDOWN POPUP YÜKSEKLİĞİ */
-div[data-baseweb="popover"] {
-    max-height: 600px !important;
-}
-
-/* 🔥 LİSTE KUTUSU */
-ul[role="listbox"] {
-    max-height: 600px !important;
-    overflow-y: auto !important;
-}
-
-/* 🔥 MENU KATMANI */
-div[data-baseweb="menu"] {
-    max-height: 600px !important;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 # ---------------- ANDROID SCROLL / REFRESH FIX ----------------
 st.markdown("""
@@ -148,23 +127,6 @@ section[data-testid="stSidebar"] > div {{
     background-color: rgba(255, 255, 255, 0.5) !important;
     backdrop-filter: blur(0px);
 }}
-/* 🔥 YENİ EKLENECEK KISIM BURASI */
-div[data-baseweb="select"] ul {{
-    max-height: 350px !important;
-    overflow-y: auto !important;
-}}
-div[data-baseweb="popover"] {{
-    max-height: 400px !important;
-    overflow-y: auto !important;
-}}
-
-.block-container {{
-    background-color: rgba(255,255,255,0.3);
-    padding: 2rem;
-    border-radius: 12px;
-}}
-</style>
-"""
         .block-container {{
             background-color: rgba(255,255,255,0.3);
             padding: 2rem;
