@@ -46,7 +46,7 @@ def splash_screen():
         img = ""
 
     splash = st.empty()
-    text = "_     It's not a pipe!!!  It's AKÜDAK....      _"
+    text = "_     It's not a pipe!!!  It's AKÜDAK...      _"
     typed = ""
 
     for i in range(len(text)):
@@ -71,7 +71,7 @@ def splash_screen():
 
         .text {{
             font-family: monospace;
-            font-size: 24px;
+            font-size: 18px;
             letter-spacing: 2px;
             margin-top: 20px;
         }}
