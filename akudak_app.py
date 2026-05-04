@@ -97,6 +97,9 @@ def set_background(image_file):
         with open(image_file, "rb") as f:
             encoded = base64.b64encode(f.read()).decode()
 
+        with open("resim3.png", "rb") as f2:
+            sidebar_encoded = base64.b64encode(f2.read()).decode()
+
         css = f"""
         <style>
         .stApp {{
@@ -104,6 +107,13 @@ def set_background(image_file):
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+        }}
+
+        /* SIDEBAR BACKGROUND */
+        section[data-testid="stSidebar"] {{
+            background-image: url("data:image/png;base64,{sidebar_encoded}");
+            background-size: cover;
+            background-position: center;
         }}
 
         /* LIGHT MODE */
@@ -122,17 +132,17 @@ def set_background(image_file):
             }}
         }}
 
-        /* Sidebar uyumu */
-        section[data-testid="stSidebar"] {{
-            background-color: inherit !important;
+        /* Sidebar fix */
+        section[data-testid="stSidebar"] * {{
+            position: relative;
+            z-index: 1;
         }}
         </style>
         """
         st.markdown(css, unsafe_allow_html=True)
-    except:
-        pass
 
-set_background("resim01.png")
+    except Exception as e:
+        st.warning(f"Background yüklenemedi: {e}")
 
 
 # ---------------- GOOGLE SHEET ----------------
