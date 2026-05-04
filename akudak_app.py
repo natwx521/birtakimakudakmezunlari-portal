@@ -105,7 +105,7 @@ def set_background(image_file):
         with open(image_file, "rb") as f:
             encoded = base64.b64encode(f.read()).decode()
 
-        with open("resim03.PNG", "rb") as f2:
+        with open("resim03.png", "rb") as f2:
             sidebar_encoded = base64.b64encode(f2.read()).decode()
 
         css = f"""
