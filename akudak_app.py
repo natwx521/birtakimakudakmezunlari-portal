@@ -33,12 +33,6 @@ input, textarea, select {
 body {
     overscroll-behavior-y: contain;
 }
-
-/* 🔥 DROPDOWN UZATMA FIX */
-div[data-baseweb="select"] ul {
-    max-height: 500px !important;
-    overflow-y: auto !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -128,11 +122,11 @@ def set_background(image_file):
             background-size: cover;
             background-position: center;
         }}
-
-        section[data-testid="stSidebar"] > div {{
-            background-color: rgba(255, 255, 255, 0.5) !important;
-        }}
-
+/* 🔥 BURAYI EKLEDİN */
+section[data-testid="stSidebar"] > div {{
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    backdrop-filter: blur(0px);
+}}
         .block-container {{
             background-color: rgba(255,255,255,0.3);
             padding: 2rem;
@@ -177,13 +171,15 @@ except Exception as e:
     df = pd.DataFrame()
 
 
-# ---------------- METRAJ ----------------
+# 🔥 EKLENEN: METRAJ & DÜŞÜŞ OTOMATİK HESAP
 def ip_kullanim_hesapla():
     if df.empty:
         return 0, 0
 
     if "Toplam_Ip" in df.columns and "Dusus" in df.columns:
-        return df["Toplam_Ip"].sum(), df["Dusus"].sum()
+        toplam_metraj = df["Toplam_Ip"].sum()
+        toplam_dusus = df["Dusus"].sum()
+        return toplam_metraj, toplam_dusus
 
     return 0, 0
 
@@ -197,13 +193,12 @@ page = st.sidebar.radio("Seçim", [
 ])
 
 
-# 🔥 FIX: Misafir en altta garanti
-kullanicilar = sorted([
+# ---------------- DATA LISTS ----------------
+kullanicilar = [
     "Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL",
     "Tanju DEMİREL", "Yavuz S. ÇAMUR",
     "Emre DOĞAN", "Erhan YALÇIN", "Misafir"
-], key=lambda x: (x == "Misafir", x))
-
+]
 
 stiller = ["LiderSpor", "LiderTRAD", "Top-Rope"]
 
@@ -222,26 +217,65 @@ malzemeler = [
     "Ekspres Set"
 ]
 
+# ---------------- MALZEME SABİT ----------------
+malzeme_sabit = [
+    {"ad": "Petzl Volta Guide 9.0mm (80m)", "tarih": "30.03.2026", "tip": "ip"},
+    {"ad": "Corax LT Kemer M", "tarih": "30.03.2026", "tip": "tekstil"},
+    {"ad": "Corax LT Kemer XL", "tarih": "30.03.2026", "tip": "tekstil"},
+    {"ad": "Petzl Reverso Kırm.", "tarih": "30.03.2026", "tip": "metal"},
+    {"ad": "Petzl Reverso Yeşil.", "tarih": "30.03.2026", "tip": "metal"},
+    {"ad": "Ekspres Set", "tarih": "30.03.2026", "tip": "tekstil"}
+]
 
 # ---------------- ÖMÜR ----------------
 def omur_hesapla(tarih_str, tip, metraj=0, dusus=0):
     tarih = datetime.strptime(tarih_str, "%d.%m.%Y").date()
     yil = (date.today() - tarih).days / 365
 
-    if tip in ["metal", "tekstil"]:
-        return max(0, 1 - yil / 10)
+    if tip == "metal":
+        kalan = max(0, 1 - yil / 10)
+    elif tip == "tekstil":
+        kalan = max(0, 1 - yil / 10)
+    elif tip == "ip":
+        yas = yil / 10
+        metraj_oran = metraj / 5000
+        dusus_oran = dusus / 10
+        kalan = max(0, 1 - (yas + metraj_oran + dusus_oran))
 
-    if tip == "ip":
-        return max(0, 1 - (yil/10 + metraj/5000 + dusus/10))
-
-    return 1
-
+    return kalan
 
 def renk(kalan):
-    return "green" if kalan > 0.7 else "orange" if kalan > 0.3 else "red"
+    if kalan > 0.7:
+        return "green"
+    elif kalan > 0.3:
+        return "orange"
+    else:
+        return "red"
 
 
-# ---------------- PAGE 2 (FIX IMPORTANT PART) ----------------
+# ---------------- PAGE 1 ----------------
+def ana_sayfa():
+    st.title("🏔️ AKÜDAK MEZUN ANA EKRAN")
+    st.subheader("🧗 Malzeme Durumu")
+
+    ip_metraj, ip_dusus = ip_kullanim_hesapla()
+
+    for m in malzeme_sabit:
+
+        if m["tip"] == "ip":
+            kalan = omur_hesapla(m["tarih"], m["tip"], ip_metraj, ip_dusus)
+        else:
+            kalan = omur_hesapla(m["tarih"], m["tip"])
+
+        st.write(f"**{m['ad']}**  \n📅 Edinme: {m['tarih']}")
+        st.progress(kalan)
+        st.markdown(
+            f"<div style='color:{renk(kalan)}'>%{int(kalan*100)} kalan</div>",
+            unsafe_allow_html=True
+        )
+
+
+# ---------------- PAGE 2 ----------------
 def veri_giris():
     st.title("🏔️ AKÜDAK MEZUN VERİ GİRİŞİ")
 
@@ -250,21 +284,22 @@ def veri_giris():
 
         with col1:
             kisi = st.selectbox("Tırmanıcı", kullanicilar)
+            tarih = st.date_input("Tarih", datetime.now())
+            sektor = st.text_input("Sektör")
+            rota = st.text_input("Rota")
 
         with col2:
             stil = st.selectbox("Stil", stiller)
-
-        tarih = st.date_input("Tarih", datetime.now())
-        sektor = st.text_input("Sektör")
-        rota = st.text_input("Rota")
-        zorluk = st.selectbox("Zorluk", zorluk_dereceleri)
-        uzunluk = st.number_input("Uzunluk", 0)
-        dusus = st.selectbox("Düşüş", [0, 1, 2, 3])
-        malzeme = st.selectbox("Ekipman", malzemeler)
+            zorluk = st.selectbox("Zorluk", zorluk_dereceleri)
+            uzunluk = st.number_input("Uzunluk", 0)
+            dusus = st.selectbox("Düşüş", [0, 1, 2, 3])
+            malzeme = st.selectbox("Ekipman", malzemeler)
 
         submit = st.form_submit_button("Kaydet")
 
         if submit:
+            ip = uzunluk * 2
+
             sheet.append_row([
                 str(tarih),
                 sektor,
@@ -273,31 +308,61 @@ def veri_giris():
                 zorluk,
                 kisi,
                 uzunluk,
-                uzunluk * 2,
+                ip,
                 malzeme,
                 dusus
             ])
+
             st.success("Kayıt başarılı!")
+            st.balloons()
 
 
-# ---------------- PAGE 3 FIX ----------------
+# ---------------- PAGE 3 ----------------
 def analiz():
     st.title("🧗 Tırmanıcı Analizi")
 
     secilen = st.selectbox("Kişi", kullanicilar)
 
-    if not df.empty:
-        df["Yukleyen"] = df.get("Yukleyen", "").astype(str).str.strip()
+    if not df.empty and "Yukleyen" in df.columns:
 
-        k = df if secilen == "Misafir" else df[df["Yukleyen"] == secilen]
+        # 🔥 FIX 1: temizleme (boşluk + NaN koruması)
+        df["Yukleyen"] = df["Yukleyen"].fillna("").astype(str).str.strip()
+
+        if secilen == "Misafir":
+            k = df.copy()
+        else:
+            k = df[df["Yukleyen"] == secilen]
+
+        # 🔥 FIX 2: Misafir boş görünmesin diye fallback
+        if secilen == "Misafir" and k.empty:
+            k = df.copy()
 
         if not k.empty:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Lider", k[k.get("Stil", "").astype(str).str.contains("Lider", na=False)]["Rota_Uz"].sum())
+            c2.metric("Top-Rope", k[k["Stil"] == "Top-Rope"]["Rota_Uz"].sum())
+            c3.metric("Son Zorluk", str(k["Zorluk"].iloc[-1]))
+
             st.dataframe(k, use_container_width=True)
+
+
+# ---------------- PAGE 4 ----------------
+def malzeme():
+    st.title("🛠 Malzeme Karnesi")
+
+    if not df.empty:
+        o = df.groupby("Malzeme").agg({
+            "Toplam_Ip": "sum",
+            "Dusus": "sum"
+        })
+
+        o.columns = ["Metraj", "Düşüş"]
+        st.table(o)
 
 
 # ---------------- ROUTER ----------------
 if page == "🏠 ANA SAYFA":
-    st.write("OK")
+    ana_sayfa()
 
 elif page == "🏔️ VERİ GİRİŞİ":
     veri_giris()
@@ -306,4 +371,4 @@ elif page == "🧗 Tırmanıcı Analizi":
     analiz()
 
 elif page == "🛠 Malzeme Karnesi":
-    st.write("OK")
+    malzeme()
