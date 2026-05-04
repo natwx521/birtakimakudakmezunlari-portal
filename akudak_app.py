@@ -35,7 +35,7 @@ body {
 }
 /* 🔥 DROPDOWN BÜYÜTME */
 ul[role="listbox"] {
-    height: 500px !important;
+    height: 600px !important;
     max-height: 600px !important;
     overflow-y: auto !important;
 }
