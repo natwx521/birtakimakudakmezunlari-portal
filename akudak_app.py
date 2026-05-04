@@ -113,6 +113,11 @@ def set_background(image_file):
             background-position: center;
             background-attachment: fixed;
         }}
+        section[data-testid="stSidebar"] {
+    background-image: url("resim03.PNG");
+    background-size: cover;
+    background-position: center;
+}
 
         .block-container {{
             background-color: rgba(255,255,255,0.88);
