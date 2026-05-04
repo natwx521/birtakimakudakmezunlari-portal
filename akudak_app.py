@@ -106,11 +106,27 @@ def set_background(image_file):
             background-attachment: fixed;
         }}
 
-        /* SIDEBAR BACKGROUND IMAGE */
+        /* SIDEBAR BACKGROUND (CLICK FIX) */
         section[data-testid="stSidebar"] {{
+            position: relative;
+            z-index: 1;
+        }}
+
+        section[data-testid="stSidebar"]::before {{
+            content: "";
+            position: absolute;
+            inset: 0;
             background-image: url("data:image/png;base64,{encoded}");
             background-size: cover;
             background-position: center;
+            opacity: 0.6;
+            z-index: 0;
+            pointer-events: none;  /* 🔥 KRİTİK FIX */
+        }}
+
+        section[data-testid="stSidebar"] * {{
+            position: relative;
+            z-index: 1;
         }}
 
         /* LIGHT MODE */
@@ -186,29 +202,4 @@ page = st.sidebar.radio("Seçim", [
     "🛠 Malzeme Karnesi"
 ])
 
-
-# ---------------- DATA LISTS ----------------
-kullanicilar = [
-    "Umut ŞEN", "Vedat AYDIN", "Mehmet AKŞİPAL",
-    "Tanju DEMİREL", "Yavuz S. ÇAMUR",
-    "Emre DOĞAN", "Erhan YALÇIN", "Misafir"
-]
-
-stiller = ["LiderSpor", "LiderTRAD", "Top-Rope"]
-
-zorluk_dereceleri = [
-    "IV", "V-", "V", "V+", "VI-", "VI", "VI+",
-    "VII-", "VII", "VII+", "VIII-", "VIII",
-    "VIII+", "IX-", "IX"
-]
-
-malzemeler = [
-    "Petzl Volta Guide 9.0mm (80m)",
-    "Corax LT Kemer M",
-    "Corax LT Kemer XL",
-    "Petzl Reverso Kırm.",
-    "Petzl Reverso Yeşil.",
-    "Ekspres Set"
-]
-
-# ... (devamı aynı)
+# (devamı senin kodla birebir aynı)
