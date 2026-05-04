@@ -264,7 +264,20 @@ def ana_sayfa():
 # ---------------- PAGE 2 ----------------
 def veri_giris():
     st.title("🏔️ AKÜDAK MEZUN VERİ GİRİŞİ")
+st.markdown("""
+<style>
+/* Form içindeki tüm yazılar */
+div[data-testid="stForm"] label {
+    font-size: 18px !important;
+}
 
+/* Input, selectbox iç yazıları */
+div[data-testid="stForm"] input,
+div[data-testid="stForm"] div {
+    font-size: 18px !important;
+}
+</style>
+""", unsafe_allow_html=True)
     with st.form("form", clear_on_submit=True):
         col1, col2 = st.columns(2)
 
