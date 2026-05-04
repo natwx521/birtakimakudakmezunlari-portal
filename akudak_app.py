@@ -122,23 +122,11 @@ def set_background(image_file):
             background-size: cover;
             background-position: center;
         }}
-
-        section[data-testid="stSidebar"] > div {{
-            background-color: rgba(255, 255, 255, 0.5) !important;
-            backdrop-filter: blur(0px);
-        }}
-
-        /* ✅ DROPDOWN FIX (EKLENDİ) */
-        div[data-baseweb="select"] ul {{
-            max-height: 350px !important;
-            overflow-y: auto !important;
-        }}
-
-        div[data-baseweb="popover"] {{
-            max-height: 400px !important;
-            overflow-y: auto !important;
-        }}
-
+/* 🔥 BURAYI EKLEDİN */
+section[data-testid="stSidebar"] > div {{
+    background-color: rgba(255, 255, 255, 0.5) !important;
+    backdrop-filter: blur(0px);
+}}
         .block-container {{
             background-color: rgba(255,255,255,0.3);
             padding: 2rem;
@@ -256,7 +244,6 @@ def omur_hesapla(tarih_str, tip, metraj=0, dusus=0):
 
     return kalan
 
-
 def renk(kalan):
     if kalan > 0.7:
         return "green"
@@ -266,7 +253,7 @@ def renk(kalan):
         return "red"
 
 
-# ---------------- SAYFALAR ----------------
+# ---------------- PAGE 1 ----------------
 def ana_sayfa():
     st.title("🏔️ AKÜDAK MEZUN ANA EKRAN")
     st.subheader("🧗 Malzeme Durumu")
@@ -274,6 +261,7 @@ def ana_sayfa():
     ip_metraj, ip_dusus = ip_kullanim_hesapla()
 
     for m in malzeme_sabit:
+
         if m["tip"] == "ip":
             kalan = omur_hesapla(m["tarih"], m["tip"], ip_metraj, ip_dusus)
         else:
@@ -281,9 +269,13 @@ def ana_sayfa():
 
         st.write(f"**{m['ad']}**  \n📅 Edinme: {m['tarih']}")
         st.progress(kalan)
-        st.markdown(f"<div style='color:{renk(kalan)}'>%{int(kalan*100)} kalan</div>", unsafe_allow_html=True)
+        st.markdown(
+            f"<div style='color:{renk(kalan)}'>%{int(kalan*100)} kalan</div>",
+            unsafe_allow_html=True
+        )
 
 
+# ---------------- PAGE 2 ----------------
 def veri_giris():
     st.title("🏔️ AKÜDAK MEZUN VERİ GİRİŞİ")
 
@@ -303,38 +295,67 @@ def veri_giris():
             dusus = st.selectbox("Düşüş", [0, 1, 2, 3])
             malzeme = st.selectbox("Ekipman", malzemeler)
 
-        if st.form_submit_button("Kaydet"):
+        submit = st.form_submit_button("Kaydet")
+
+        if submit:
             ip = uzunluk * 2
-            sheet.append_row([str(tarih), sektor, rota, stil, zorluk, kisi, uzunluk, ip, malzeme, dusus])
+
+            sheet.append_row([
+                str(tarih),
+                sektor,
+                rota,
+                stil,
+                zorluk,
+                kisi,
+                uzunluk,
+                ip,
+                malzeme,
+                dusus
+            ])
+
             st.success("Kayıt başarılı!")
             st.balloons()
 
 
+# ---------------- PAGE 3 ----------------
 def analiz():
     st.title("🧗 Tırmanıcı Analizi")
 
     secilen = st.selectbox("Kişi", kullanicilar)
 
     if not df.empty and "Yukleyen" in df.columns:
+
+        # 🔥 FIX 1: temizleme (boşluk + NaN koruması)
         df["Yukleyen"] = df["Yukleyen"].fillna("").astype(str).str.strip()
 
         if secilen == "Misafir":
             k = df.copy()
         else:
-            k = df[df["Yukleyen"].str.upper() == secilen.upper()]
+            k = df[df["Yukleyen"] == secilen]
 
+        # 🔥 FIX 2: Misafir boş görünmesin diye fallback
         if secilen == "Misafir" and k.empty:
             k = df.copy()
 
         if not k.empty:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Lider", k[k.get("Stil", "").astype(str).str.contains("Lider", na=False)]["Rota_Uz"].sum())
+            c2.metric("Top-Rope", k[k["Stil"] == "Top-Rope"]["Rota_Uz"].sum())
+            c3.metric("Son Zorluk", str(k["Zorluk"].iloc[-1]))
+
             st.dataframe(k, use_container_width=True)
 
 
+# ---------------- PAGE 4 ----------------
 def malzeme():
     st.title("🛠 Malzeme Karnesi")
 
     if not df.empty:
-        o = df.groupby("Malzeme").agg({"Toplam_Ip": "sum", "Dusus": "sum"})
+        o = df.groupby("Malzeme").agg({
+            "Toplam_Ip": "sum",
+            "Dusus": "sum"
+        })
+
         o.columns = ["Metraj", "Düşüş"]
         st.table(o)
 
@@ -342,9 +363,12 @@ def malzeme():
 # ---------------- ROUTER ----------------
 if page == "🏠 ANA SAYFA":
     ana_sayfa()
+
 elif page == "🏔️ VERİ GİRİŞİ":
     veri_giris()
+
 elif page == "🧗 Tırmanıcı Analizi":
     analiz()
+
 elif page == "🛠 Malzeme Karnesi":
     malzeme()
