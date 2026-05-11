@@ -255,6 +255,19 @@ def renk(kalan):
 # ---------------- PAGE 1 ----------------
 def ana_sayfa():
     st.title("🏔️ AKÜDAK MEZUN ANA EKRAN")
+    st.warning("""
+⚠️ ÖNEMLİ BİLGİLENDİRME VE GÜVENLİK KRİTERLERİ
+
+🔴 Sert Düşüş Tanımı:
+Lider tırmanışta son emniyet noktasının (bolt veya sikke) üzerine çıkıldıktan sonra yaşanan, ipin ciddi dinamik yük aldığı sarsıntılı düşüşleri ifade eder.
+
+🧗 İp Emeklilik Kriteri:
+Dinamik ipler, güvenlik standartları gereği 5000 metre toplam kullanım mesafesine ulaştığında veya üzerinde 5 sert düşüş gerçekleştiğinde (hangisi önce dolarsa) emekliye ayrılmalıdır.  
+(Bu aslında "Kritik Eşik" uyarısıdır, kullanım durumu ve ipin fiziki haline göre tecrübeyle değişkenlik gösterebilir.)
+
+📊 Veri Giriş Rehberi:
+Faaliyet kayıtlarında rota uzunluğu, tırmanış stili ve UIAA zorluk derecelerinin eksiksiz girilmesi, kişisel tırmanış gelişim analizi ve malzeme ömrü takibi için kritiktir.
+""")
     st.subheader("🧗 Malzeme Durumu")
 
     ip_metraj, ip_dusus = ip_kullanim_hesapla()
