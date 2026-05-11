@@ -260,6 +260,9 @@ def ana_sayfa():
 
 🔴 Sert Düşüş Tanımı:
 Lider tırmanışta son emniyet noktasının (bolt veya sikke) üzerine çıkıldıktan sonra yaşanan, ipin ciddi dinamik yük aldığı sarsıntılı düşüşleri ifade eder.
+0 Puan (Sert Düşüş Değil): Top-Rope tırmanışta yaşanan tüm düşüşler. Lider tırmanışta emniyet noktasının göğüs hizasında veya üzerinde olduğu durumlarda yaşanan kısa düşüşler (ipte şok yük oluşmaz).
+
+1 Puan (Sert Düşüş): Lider tırmanışta son emniyet noktasının (bolt/sikke) belirgin şekilde üzerine çıkıldıktan sonra yaşanan, tırmanıcının boşlukta ivme kazandığı ve ipin ciddi bir dinamik yük (şok) sarsıntısıyla karşılaştığı durumlar.
 
 🧗 İp Emeklilik Kriteri:
 Dinamik ipler, güvenlik standartları gereği 5000 metre toplam kullanım mesafesine ulaştığında veya üzerinde 5 sert düşüş gerçekleştiğinde (hangisi önce dolarsa) emekliye ayrılmalıdır.  
